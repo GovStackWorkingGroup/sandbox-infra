@@ -4,6 +4,7 @@ module "eks" {
 
   cluster_name    = "${var.cluster_name}"
   cluster_version = "${var.eks_version}"
+  cluster_enabled_log_types = ["api", "audit"]
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
@@ -17,12 +18,14 @@ module "eks" {
           labels    = {
             Application = "backend"
           }
+          subnet_ids = module.vpc.private_subnets
         },
         {
           namespace = "default"
           labels    = {
             Application = "default"
           }
+          subnet_ids = module.vpc.private_subnets
         }
       ]
 
@@ -54,6 +57,7 @@ module "eks" {
       max_size     = 1
       desired_size = 1
 
+
       vpc_security_group_ids = [
         aws_security_group.node_group_one.id
       ]
@@ -72,6 +76,34 @@ module "eks" {
         aws_security_group.node_group_two.id
       ]
     }
+  }
+}
+
+resource "aws_ecs_cluster" "govstack_cluster" {
+  name = "${var.cluster_name}"
+}
+
+resource "aws_ecs_cluster_capacity_providers" "fargate" {
+  cluster_name = aws_ecs_cluster.govstack_cluster.name
+
+  capacity_providers = ["FARGATE"]
+
+  default_capacity_provider_strategy {
+    base              = 1
+    weight            = 50
+    capacity_provider = "FARGATE"
+  }
+}
+
+resource "aws_ecs_cluster_capacity_providers" "fargate_spot" {
+  cluster_name = aws_ecs_cluster.govstack_cluster.name
+
+  capacity_providers = ["FARGATE_SPOT"]
+
+  default_capacity_provider_strategy {
+    base              = 1
+    weight            = 50
+    capacity_provider = "FARGATE_SPOT"
   }
 }
 
