@@ -27,3 +27,38 @@ resource "aws_security_group" "node_group_two" {
     ]
   }
 }
+
+resource "kubernetes_network_policy" "default_policy" {
+
+  metadata {
+    name      = "default-rules"
+    namespace = "default"
+  }
+
+  spec {
+    pod_selector {
+
+    }
+
+    ingress {
+
+    }
+
+    egress {
+      ports {
+        port     = "53"
+        protocol = "UDP"
+      }
+      to {
+        namespace_selector {
+          match_labels = {
+            name = "kube-system"
+          }
+        }
+      }
+
+    } # single empty rule to allow all egress traffic
+
+    policy_types = ["Ingress", "Egress"]
+  }
+}
