@@ -37,7 +37,6 @@ module "eks" {
       }
     }
   }
-
   eks_managed_node_group_defaults = {
     ami_type = "AL2_x86_64"
 
@@ -114,4 +113,11 @@ resource "aws_ecr_repository" "GovStack_ECR" {
   image_scanning_configuration {
     scan_on_push = true
   }
+}
+
+module "eks_blueprints_kubernetes_addons" {
+  source = "github.com/aws-ia/terraform-aws-eks-blueprints/modules/kubernetes-addons"
+
+  eks_cluster_id       = "${var.cluster_name}"
+  enable_amazon_eks_aws_ebs_csi_driver = true
 }
