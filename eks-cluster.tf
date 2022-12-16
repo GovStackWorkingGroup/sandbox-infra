@@ -9,34 +9,6 @@ module "eks" {
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
-  fargate_profiles = {
-    fargate = {
-      name      = "${var.cluster_name}"
-      selectors = [
-        {
-          namespace = "backend"
-          labels    = {
-            Application = "backend"
-          }
-          subnet_ids = module.vpc.private_subnets
-        },
-        {
-          namespace = "default"
-          labels    = {
-            Application = "default"
-          }
-          subnet_ids = module.vpc.private_subnets
-        }
-      ]
-
-      # Using specific subnets instead of the subnets supplied for the cluster itself
-      #subnet_ids = [module.vpc.private_subnets[1]]
-      timeouts = {
-        create = "20m"
-        delete = "20m"
-      }
-    }
-  }
   eks_managed_node_group_defaults = {
     ami_type = "AL2_x86_64"
 
@@ -76,6 +48,51 @@ module "eks" {
       ]
     }
   }
+}
+
+resource "aws_iam_role" "eks_fargate_role" {
+  name = "EKSFargateRole"
+  force_detach_policies = true
+  assume_role_policy = <<POLICY
+{
+    "Version": "2012-10-17",
+    "Statement": [{
+        "Effect": "Allow",
+        "Principal": {
+            "Service": ["eks.amazonaws.com", "eks-fargate-pods.amazonaws.com"]
+        },
+        "Action": "sts:AssumeRole"
+    }]
+}
+POLICY
+}
+
+resource "aws_iam_role_policy_attachment" "AmazonEKSFargatePodExecutionRolePolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSFargatePodExecutionRolePolicy"
+  role       = "${aws_iam_role.eks_fargate_role.name}"
+}
+
+resource "aws_eks_fargate_profile" "eks_fargate_profile" {
+  cluster_name           = "${var.cluster_name}"
+  fargate_profile_name   = "EKSFargateProfile"
+  pod_execution_role_arn = "${aws_iam_role.eks_fargate_role.arn}"
+
+  # Only private subnets
+  subnet_ids = module.vpc.private_subnets
+
+  selector {
+    namespace = "default"
+  }
+  selector {
+    namespace = "kube-system"
+  }
+  selector {
+    namespace = "govstack"
+  }
+
+  depends_on = [
+    aws_iam_role_policy_attachment.AmazonEKSFargatePodExecutionRolePolicy
+  ]
 }
 
 resource "aws_ecs_cluster" "govstack_cluster" {
