@@ -22,7 +22,7 @@ module "eks" {
     one = {
       name = "node-group-1"
 
-      instance_types = ["t3.small"]
+      instance_types = ["m5.large"]
 
       min_size     = 1
       max_size     = 1
@@ -37,7 +37,7 @@ module "eks" {
     two = {
       name = "node-group-2"
 
-      instance_types = ["t3.small"]
+      instance_types = ["m5.large"]
 
       min_size     = 1
       max_size     = 1
@@ -88,6 +88,12 @@ resource "aws_eks_fargate_profile" "eks_fargate_profile" {
   }
   selector {
     namespace = "govstack"
+  }
+  selector {
+    namespace = "govstack-backend"
+  }
+  selector {
+    namespace = "govstack-ui"
   }
 
   depends_on = [
