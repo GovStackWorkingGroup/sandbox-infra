@@ -2,7 +2,7 @@ terraform {
   required_version = ">= 1.0.0"
 
   backend "s3" {
-    bucket = "govstacksandboxdemo"
+    bucket = "govstack-sandbox-terraform-dev"
     key    = "terraformstates"
     region = "eu-central-1"
   }
