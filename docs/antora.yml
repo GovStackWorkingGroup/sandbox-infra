@@ -1,0 +1,9 @@
+name: sandbox-infra
+version: ~ # https://docs.antora.org/antora/latest/component-with-no-version/
+start_page: main.adoc
+asciidoc:
+  attributes:
+    source-language: asciidoc@
+    table-caption: false
+nav:
+- modules/ROOT/nav.adoc
