@@ -39,7 +39,7 @@ resource "null_resource" "lambda_package" {
     index = sha256(file("${var.lambdaName}.ts"))
     package = sha256(file("package.json"))
     tsconfig = sha256(file("tsconfig.json"))
-    derp ="derpssdsdffdsfddeer"
+    # modify ="yes" # change value when you want to force this
   }
 }
 
