@@ -12,13 +12,13 @@ data "aws_iam_policy_document" "eks_role_assume_document" {
       identifiers = ["arn:aws:iam::463471358064:oidc-provider/oidc.eks.eu-central-1.amazonaws.com/id/8F486C6A0B85FE0B75B81E11593ACE3B"]
     }
     condition {
-      test = "StringEquals"
+      test = "StringLike"
       values = ["sts.amazonaws.com"]
       variable = "oidc.eks.eu-central-1.amazonaws.com/id/8F486C6A0B85FE0B75B81E11593ACE3B:aud"
     }
     condition {
-      test = "StringEquals"
-      values = ["system:serviceaccount:govstack-backend:govstack-service-account"]
+      test = "StringLike"
+      values = ["system:serviceaccount:govstack-backend:ack-rds-controller"]
       variable = "oidc.eks.eu-central-1.amazonaws.com/id/8F486C6A0B85FE0B75B81E11593ACE3B:sub"
     }
   }

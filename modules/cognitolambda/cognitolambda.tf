@@ -23,14 +23,46 @@ variable "env_vars" {
 locals {
   role_split = split("/", var.lambdaRoleArn)
   role_name = local.role_split[length(local.role_split) - 1]
+
+  work_dir = "${path.module}/functions/${var.lambdaName}"
+}
+
+resource "null_resource" "lambda_package" {
+
+  provisioner "local-exec" {
+    command = "npm install; tsc"
+    working_dir = local.work_dir
+    on_failure = continue
+ }
+
+  triggers = {
+    index = sha256(file("${var.lambdaName}.ts"))
+    package = sha256(file("package.json"))
+    tsconfig = sha256(file("tsconfig.json"))
+    derp ="derpssdsdffdsfddeer"
+  }
 }
 
 # Zip the lambda code and put it in the s3 bucket
 data "archive_file" "lambda_archive" {
     type = "zip"
-    source_file = "${path.module}/functions/${var.lambdaName}.ts" 
-    output_path = "${path.module}/functions/${var.lambdaName}.zip"
+    source_dir = local.work_dir
+    output_path = "${local.work_dir}/${var.lambdaName}.zip"
+
+    excludes = [ 
+      "${var.lambdaName}.ts",
+      "package.json",
+      "package-lock.json",
+      "tsconfig.json",
+      "${var.lambdaName}.zip"
+     ]
+
+  depends_on = [
+    null_resource.lambda_package
+  ]
 }
+
+
 
 resource "aws_s3_object" "lambda_source_object" {
     bucket = var.bucketID
@@ -51,7 +83,9 @@ resource "aws_s3_object" "lambda_source_object" {
     role = var.lambdaRoleArn
     runtime = "nodejs16.x"
 
-    handler = "handler"
+    source_code_hash = "${var.lambdaName}.zip"
+
+    handler = "${var.lambdaName}.handler"
 
     function_name = "${var.lambdaName}Lambda"
     environment {
