@@ -2,8 +2,8 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "18.26.6"
 
-  cluster_name    = "${var.cluster_name}"
-  cluster_version = "${var.eks_version}"
+  cluster_name    = var.cluster_name
+  cluster_version = var.eks_version
   cluster_enabled_log_types = ["api", "audit"]
 
   vpc_id     = module.vpc.vpc_id
@@ -69,13 +69,13 @@ POLICY
 
 resource "aws_iam_role_policy_attachment" "AmazonEKSFargatePodExecutionRolePolicy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSFargatePodExecutionRolePolicy"
-  role       = "${aws_iam_role.eks_fargate_role.name}"
+  role       = aws_iam_role.eks_fargate_role.name
 }
 
 resource "aws_eks_fargate_profile" "eks_fargate_profile" {
-  cluster_name           = "${var.cluster_name}"
+  cluster_name           = var.cluster_name
   fargate_profile_name   = "EKSFargateProfile"
-  pod_execution_role_arn = "${aws_iam_role.eks_fargate_role.arn}"
+  pod_execution_role_arn = aws_iam_role.eks_fargate_role.arn
 
   # Only private subnets
   subnet_ids = module.vpc.private_subnets
@@ -102,7 +102,7 @@ resource "aws_eks_fargate_profile" "eks_fargate_profile" {
 }
 
 resource "aws_ecs_cluster" "govstack_cluster" {
-  name = "${var.cluster_name}"
+  name = var.cluster_name
 }
 
 resource "aws_ecs_cluster_capacity_providers" "fargate" {
@@ -141,6 +141,6 @@ resource "aws_ecr_repository" "GovStack_ECR" {
 module "eks_blueprints_kubernetes_addons" {
   source = "github.com/aws-ia/terraform-aws-eks-blueprints/modules/kubernetes-addons"
 
-  eks_cluster_id       = "${var.cluster_name}"
+  eks_cluster_id       = var.cluster_name
   enable_amazon_eks_aws_ebs_csi_driver = true
 }

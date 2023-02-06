@@ -2,7 +2,6 @@
 variable "cluster_name" {
   description = "Name of cluster - used by Terratest for e2e test automation"
   type        = string
-  default     = "GovStack_sandbox"
 }
 
 variable "region" {
@@ -18,5 +17,8 @@ variable "vpc_cidr" {
 
 variable "eks_version" {
   type = string
-  default = "1.24"
+}
+
+variable "environment" {
+  type = string
 }
