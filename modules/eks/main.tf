@@ -9,10 +9,6 @@ provider "kubernetes" {
   config_path = "~/.kube/config"
 }
 
-provider "aws" {
-  region = var.region
-}
-
 locals {
   azs = ["${var.region}a", "${var.region}b", "${var.region}c"]
 }

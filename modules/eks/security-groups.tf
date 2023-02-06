@@ -66,14 +66,14 @@ resource "kubernetes_network_policy" "default_policy" {
 resource "kubernetes_namespace" "govstack_backend_namespace" {
   metadata {
     annotations = {
-      name = "govstack-backend"
+      name = "govstack-dev-backend"
     }
 
     labels = {
-      mylabel = "govstack-backend"
+      mylabel = "govstack-dev-backend"
     }
 
-    name = "govstack-backend"
+    name = "govstack-dev-backend"
   }
 }
 
