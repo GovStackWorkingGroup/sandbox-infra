@@ -1,11 +1,14 @@
 locals {
-  aws_region = "eu-central-1"
-  product = "island"
+  
 
-  env_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
+  env_vars      = read_terragrunt_config(find_in_parent_folders("env.hcl"))
+  common_vars   = read_terragrunt_config(find_in_parent_folders("common/common.hcl"))
 
-  environment = local.env_vars.locals.environment
-  account_id   = local.env_vars.locals.aws_account_id
+  environment   = local.env_vars.locals.environment
+  account_id    = local.env_vars.locals.aws_account_id
+  aws_region    = local.common_vars.locals.aws_region
+  product       = local.common_vars.locals.product  
+
 }
 
 # Generate an AWS provider block
