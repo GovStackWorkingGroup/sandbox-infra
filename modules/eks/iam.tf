@@ -1,3 +1,34 @@
+resource "aws_iam_role" "eks_fargate_role" {
+  name = "EKSFargateRole"
+  force_detach_policies = true
+  assume_role_policy = data.aws_iam_policy_document.eks_role_assume_document.json
+  
+  
+/* <<POLICY
+{
+    "Version": "2012-10-17",
+    "Statement": [{
+        "Effect": "Allow",
+        "Principal": {
+            "Service": ["eks.amazonaws.com", "eks-fargate-pods.amazonaws.com"]
+        },
+        "Action": "sts:AssumeRole"
+    }]
+}
+POLICY */
+
+}
+
+data "aws_iam_policy_document" "lambda_assume_role_policy_document" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type = "Service"
+      identifiers = ["eks.amazonaws.com", "eks-fargate-pods.amazonaws.com"]
+    }
+  }
+}
+
 resource "aws_iam_role" "kube_rds_controller_role" {
     name = "StupidRole"
     assume_role_policy = data.aws_iam_policy_document.eks_role_assume_document.json
@@ -29,3 +60,4 @@ resource "aws_iam_role_policy_attachment" "EKSRDSPolicyAttachment" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonRDSFullAccess"
   role       = aws_iam_role.kube_rds_controller_role.name
 }
+

@@ -50,22 +50,7 @@ module "eks" {
   }
 }
 
-resource "aws_iam_role" "eks_fargate_role" {
-  name = "EKSFargateRole"
-  force_detach_policies = true
-  assume_role_policy = <<POLICY
-{
-    "Version": "2012-10-17",
-    "Statement": [{
-        "Effect": "Allow",
-        "Principal": {
-            "Service": ["eks.amazonaws.com", "eks-fargate-pods.amazonaws.com"]
-        },
-        "Action": "sts:AssumeRole"
-    }]
-}
-POLICY
-}
+
 
 resource "aws_iam_role_policy_attachment" "AmazonEKSFargatePodExecutionRolePolicy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSFargatePodExecutionRolePolicy"
@@ -144,3 +129,4 @@ module "eks_blueprints_kubernetes_addons" {
   eks_cluster_id       = var.cluster_name
   enable_amazon_eks_aws_ebs_csi_driver = true
 }
+
