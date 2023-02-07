@@ -1,4 +1,4 @@
-# sandbox-infra
+# Sandbox Infrastructure
 
 Contains infrastructure as terraform for the sandbox instances. Used by terragrunt.
 
