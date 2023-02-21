@@ -8,6 +8,7 @@ Contains infrastructure as terraform for the sandbox instances. Used by terragru
 
 ## Current modules
 + **eks** - Currently contains terraform files for creating new EKS cluster and setting up the VPC
++ **ecr** - Contains terraform files for creating ECR image repositories
 ### Temporarily here from portal
 + **magiclink** - Contains cognito, some lambdas for creating the magic link and lambda and API for signIn for frontend to connect
 + **cognitolambda** - Submodule for magiclink, creates and deploys the lambda and appropriate resources they need
