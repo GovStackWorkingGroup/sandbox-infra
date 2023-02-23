@@ -1,14 +1,16 @@
-resource "aws_ecr_repository" "ecr_mifos_ph_ee_ams" {
-  name                 = "${var.environment}-ph-ee-ams"
-
+resource "aws_ecr_repository" "ecr_open_imis" {
+  name                 = "${var.environment}-open-imis"
+  image_tag_mutability = "MUTABLE"
+  
   image_scanning_configuration {
     scan_on_push = true
   }
 }
 
-resource "aws_ecr_repository" "ecr_open_imis" {
-  name                 = "${var.environment}-open-imis"
+resource "aws_ecr_repository" "ecr_mifos_ph_ee_ams" {
+  name                 = "payment-hub/${var.environment}-ph-ee-ams"
   image_tag_mutability = "MUTABLE"
+  force_delete         = true
 
   image_scanning_configuration {
     scan_on_push = true
@@ -16,7 +18,7 @@ resource "aws_ecr_repository" "ecr_open_imis" {
 }
 
 resource "aws_ecr_repository" "ecr_mifos_phee_mojaloop" {
-  name                 = "${var.environment}-phee-mojaloop"
+  name                 = "payment-hub/${var.environment}-phee-mojaloop"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -25,7 +27,7 @@ resource "aws_ecr_repository" "ecr_mifos_phee_mojaloop" {
 }
 
 resource "aws_ecr_repository" "ecr_mifos_phee_channel" {
-  name                 = "${var.environment}-phee-channel"
+  name                 = "payment-hub/${var.environment}-phee-channel"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -34,7 +36,7 @@ resource "aws_ecr_repository" "ecr_mifos_phee_channel" {
 }
 
 resource "aws_ecr_repository" "ecr_mifos_ph_ee_ops_bk" {
-  name                 = "${var.environment}-ph-ee-ops-bk"
+  name                 = "payment-hub/${var.environment}-ph-ee-ops-bk"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -43,7 +45,7 @@ resource "aws_ecr_repository" "ecr_mifos_ph_ee_ops_bk" {
 }
 
 resource "aws_ecr_repository" "ecr_mifos_phee_ops_web" {
-  name                 = "${var.environment}-phee-ops-web"
+  name                 = "payment-hub/${var.environment}-phee-ops-web"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -52,7 +54,7 @@ resource "aws_ecr_repository" "ecr_mifos_phee_ops_web" {
 }
 
 resource "aws_ecr_repository" "ecr_mifos_pphee_gsma" {
-  name                 = "${var.environment}-phee-gsma"
+  name                 = "payment-hub/${var.environment}-phee-gsma"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -61,7 +63,7 @@ resource "aws_ecr_repository" "ecr_mifos_pphee_gsma" {
 }
 
 resource "aws_ecr_repository" "ecr_mifos_ph_ee_slcb" {
-  name                 = "${var.environment}-ph-ee-slcb"
+  name                 = "payment-hub/${var.environment}-ph-ee-slcb"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -70,7 +72,7 @@ resource "aws_ecr_repository" "ecr_mifos_ph_ee_slcb" {
 }
 
 resource "aws_ecr_repository" "ecr_mifos_ph_mpesa" {
-  name                 = "${var.environment}-ph-mpesa"
+  name                 = "payment-hub/${var.environment}-ph-mpesa"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -79,7 +81,7 @@ resource "aws_ecr_repository" "ecr_mifos_ph_mpesa" {
 }
 
 resource "aws_ecr_repository" "ecr_mifos_phee_roster" {
-  name                 = "${var.environment}-phee-roster"
+  name                 = "payment-hub/${var.environment}-phee-roster"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -88,7 +90,7 @@ resource "aws_ecr_repository" "ecr_mifos_phee_roster" {
 }
 
 resource "aws_ecr_repository" "ecr_mifos_phee_connector_ams_paygops" {
-  name                 = "${var.environment}-phee-connector-ams-paygops"
+  name                 = "payment-hub/${var.environment}-phee-connector-ams-paygops"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -97,7 +99,7 @@ resource "aws_ecr_repository" "ecr_mifos_phee_connector_ams_paygops" {
 }
 
 resource "aws_ecr_repository" "ecr_mifos_ph_ee_notifications" {
-  name                 = "${var.environment}-ph-ee-notifications"
+  name                 = "payment-hub/${var.environment}-ph-ee-notifications"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -106,7 +108,7 @@ resource "aws_ecr_repository" "ecr_mifos_ph_ee_notifications" {
 }
 
 resource "aws_ecr_repository" "ecr_mifos_phee_bulk_processor" {
-  name                 = "${var.environment}-phee-bulk-processor"
+  name                 = "payment-hub/${var.environment}-phee-bulk-processor"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -115,7 +117,7 @@ resource "aws_ecr_repository" "ecr_mifos_phee_bulk_processor" {
 }
 
 resource "aws_ecr_repository" "ecr_mifos_phee_zeebe_ops" {
-  name                 = "${var.environment}-phee-zeebe-ops"
+  name                 = "payment-hub/${var.environment}-phee-zeebe-ops"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -124,7 +126,7 @@ resource "aws_ecr_repository" "ecr_mifos_phee_zeebe_ops" {
 }
 
 resource "aws_ecr_repository" "ecr_mifos_phee_message_gateway" {
-  name                 = "${var.environment}-phee-message-gateway"
+  name                 = "payment-hub/${var.environment}-phee-message-gateway"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -133,7 +135,7 @@ resource "aws_ecr_repository" "ecr_mifos_phee_message_gateway" {
 }
 
 resource "aws_ecr_repository" "ecr_mifos_ph_es_importer" {
-  name                 = "${var.environment}-ph-es-importer"
+  name                 = "payment-hub/${var.environment}-ph-es-importer"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -142,16 +144,7 @@ resource "aws_ecr_repository" "ecr_mifos_ph_es_importer" {
 }
 
 resource "aws_ecr_repository" "ecr_mifos_phee_importer_rdbms" {
-  name                 = "${var.environment}-phee-importer-rdbms"
-    image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-}
-
-resource "aws_ecr_repository" "ecr_mifos" {
-  name                 = "${var.environment}-mifos"
+  name                 = "payment-hub/${var.environment}-phee-importer-rdbms"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
