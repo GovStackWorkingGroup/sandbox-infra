@@ -1,7 +1,16 @@
-resource "aws_ecr_repository" "ecr_open_imis" {
-  name                 = "${var.environment}-open-imis"
+resource "aws_ecr_repository" "ecr_open_imis_backend" {
+  name                 = "open-imis/${var.environment}-backend"
   image_tag_mutability = "MUTABLE"
-  
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_ecr_repository" "ecr_open_imis_gateway" {
+  name                 = "open-imis/${var.environment}-gateway"
+  image_tag_mutability = "MUTABLE"
+
   image_scanning_configuration {
     scan_on_push = true
   }
@@ -10,7 +19,6 @@ resource "aws_ecr_repository" "ecr_open_imis" {
 resource "aws_ecr_repository" "ecr_mifos_ph_ee_ams" {
   name                 = "payment-hub/${var.environment}-ph-ee-ams"
   image_tag_mutability = "MUTABLE"
-  force_delete         = true
 
   image_scanning_configuration {
     scan_on_push = true
