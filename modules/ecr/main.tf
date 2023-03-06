@@ -28,7 +28,6 @@ resource "aws_ecr_repository" "ecr_mifos" {
 resource "aws_ecr_repository" "ecr_mifos_ph_ee_ams" {
   name                 = "${var.environment}-ph-ee-ams"
   image_tag_mutability = "MUTABLE"
-  force_delete         = true
 
   image_scanning_configuration {
     scan_on_push = true
