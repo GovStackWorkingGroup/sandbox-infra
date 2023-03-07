@@ -159,3 +159,39 @@ resource "aws_ecr_repository" "ecr_mifos_phee_importer_rdbms" {
     scan_on_push = true
   }
 }
+
+resource "aws_ecr_repository" "ecr_mifos_fineract" {
+  name                 = "payment-hub/${var.environment}-fineract"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_ecr_repository" "ecr_mifos_community-app" {
+  name                 = "payment-hub/${var.environment}-community-app"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_ecr_repository" "ecr_mifos-phee-ns-web-self-service-app" {
+  name                 = "payment-hub/phee-ns/${var.environment}-web-self-service-app"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_ecr_repository" "ecr_mifos-phee-ns-web-app" {
+  name                 = "payment-hub/phee-ns/${var.environment}-web-app"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
