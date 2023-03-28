@@ -1,7 +1,7 @@
 resource "aws_iam_role" "eks_fargate_role" {
   name = "EKSFargateRole"
   force_detach_policies = true
-  assume_role_policy = data.aws_iam_policy_document.eks_role_assume_document.json
+  assume_role_policy = data.aws_iam_policy_document.fargate_role_assume_document.json
   
   
 /* <<POLICY
@@ -19,7 +19,7 @@ POLICY */
 
 }
 
-data "aws_iam_policy_document" "lambda_assume_role_policy_document" {
+data "aws_iam_policy_document" "fargate_role_assume_document" {
   statement {
     actions = ["sts:AssumeRole"]
     principals {
@@ -30,7 +30,7 @@ data "aws_iam_policy_document" "lambda_assume_role_policy_document" {
 }
 
 resource "aws_iam_role" "kube_rds_controller_role" {
-    name = "StupidRole"
+    name = "KubeRDSAccessRole"
     assume_role_policy = data.aws_iam_policy_document.eks_role_assume_document.json
 
 }
@@ -40,17 +40,17 @@ data "aws_iam_policy_document" "eks_role_assume_document" {
     actions = ["sts:AssumeRoleWithWebIdentity"]
     principals {
       type = "Federated"
-      identifiers = ["arn:aws:iam::463471358064:oidc-provider/oidc.eks.eu-central-1.amazonaws.com/id/8F486C6A0B85FE0B75B81E11593ACE3B"]
+      identifiers = [module.eks.oidc_provider_arn]
     }
     condition {
       test = "StringLike"
       values = ["sts.amazonaws.com"]
-      variable = "oidc.eks.eu-central-1.amazonaws.com/id/8F486C6A0B85FE0B75B81E11593ACE3B:aud"
+      variable = "${module.eks.oidc_provider}:aud"
     }
     condition {
       test = "StringLike"
       values = ["system:serviceaccount:govstack-backend:ack-rds-controller"]
-      variable = "oidc.eks.eu-central-1.amazonaws.com/id/8F486C6A0B85FE0B75B81E11593ACE3B:sub"
+      variable = "${module.eks.oidc_provider}:sub"
     }
   }
 }
@@ -61,3 +61,8 @@ resource "aws_iam_role_policy_attachment" "EKSRDSPolicyAttachment" {
   role       = aws_iam_role.kube_rds_controller_role.name
 }
 
+resource "aws_iam_role_policy_attachment" "eksPodexectuonPolicyAttachment" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSFargatePodExecutionRolePolicy"
+  role       = aws_iam_role.eks_fargate_role.name
+  
+}
