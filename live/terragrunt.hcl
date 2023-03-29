@@ -2,12 +2,12 @@ locals {
   
 
   env_vars      = read_terragrunt_config(find_in_parent_folders("env.hcl"))
-  common_vars   = read_terragrunt_config(find_in_parent_folders("common/common.hcl"))
+  #common_vars   = read_terragrunt_config(find_in_parent_folders("common/common.hcl"))
 
   environment   = local.env_vars.locals.environment
   account_id    = local.env_vars.locals.aws_account_id
-  aws_region    = local.common_vars.locals.aws_region
-  product       = local.common_vars.locals.product  
+  aws_region    = local.env_vars.locals.aws_region
+  product       = local.env_vars.locals.product  
  
   cluster_name  = local.env_vars.locals.cluster_name
 
