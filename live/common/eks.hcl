@@ -6,13 +6,15 @@ terraform {
 locals {
   # Automatically load environment-level variables
   env_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
-  common_vars = read_terragrunt_config(find_in_parent_folders("common/common.hcl"))
 
   # Extract out common variables for reuse
   env = local.env_vars.locals.environment
-  product = local.common_vars.locals.product
+  product = local.env_vars.locals.product
 
   eks_version = local.env_vars.locals.eks_version
+  account_id = local.env_vars.locals.aws_account_id
+
+  cluster_name = local.env_vars.locals.cluster_name
 
   # Expose the base source URL so different versions of the module can be deployed in different environments. This will
   # be used to construct the terraform block in the child terragrunt configurations.
@@ -27,6 +29,7 @@ inputs = {
    product = local.product
    eks_version = local.eks_version
 
-   cluster_name ="Sandbox-${local.product}-${local.env}-EKS"
+   cluster_name = local.cluster_name
+   account_id = local.account_id
 }
 
