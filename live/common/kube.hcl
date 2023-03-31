@@ -19,7 +19,7 @@ locals {
   # Expose the base source URL so different versions of the module can be deployed in different environments. This will
   # be used to construct the terraform block in the child terragrunt configurations.
  # base_source_url = "git@github.com:GovStackWorkingGroup/sandbox-portal-magiclink-backend.git//terraform"
- base_source =  "../../../modules//eks"
+ base_source =  "../../../modules//kube"
 }
 
 #Inputs common in every environment
@@ -27,7 +27,6 @@ inputs = {
    #region = local.env_vars.aws_region
    environment = local.env
    product = local.product
-   eks_version = local.eks_version
 
    cluster_name = local.cluster_name
    account_id = local.account_id

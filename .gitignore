@@ -46,3 +46,6 @@ terragrunt-debug.tfvars.json
 *.zip
 *.js
 **/node_modules
+
+# system files
+.DS_Store

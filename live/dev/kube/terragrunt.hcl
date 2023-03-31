@@ -3,7 +3,7 @@ include "root" {
 }
 
 include "commons" {
-    path = "${dirname(find_in_parent_folders())}/common/eks.hcl"
+    path = "${dirname(find_in_parent_folders())}/common/kube.hcl"
     expose = true
 }
 

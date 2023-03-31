@@ -2,24 +2,30 @@ locals {
   
 
   env_vars      = read_terragrunt_config(find_in_parent_folders("env.hcl"))
-  common_vars   = read_terragrunt_config(find_in_parent_folders("common/common.hcl"))
+  #common_vars   = read_terragrunt_config(find_in_parent_folders("common/common.hcl"))
 
   environment   = local.env_vars.locals.environment
   account_id    = local.env_vars.locals.aws_account_id
-  aws_region    = local.common_vars.locals.aws_region
-  product       = local.common_vars.locals.product  
+  aws_region    = local.env_vars.locals.aws_region
+  product       = local.env_vars.locals.product  
+ 
+  cluster_name  = local.env_vars.locals.cluster_name
 
 }
 
-# Generate an AWS provider block
+# Generate provider block for aws and kubernetes
 generate "provider" {
   path      = "provider.tf"
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
     provider "aws" {
-    region = "${local.aws_region}"
-    allowed_account_ids = ["${local.account_id}"]
-}
+      region = "${local.aws_region}"
+      allowed_account_ids = ["${local.account_id}"]
+    }
+    provider "kubernetes" {
+      config_path = "~/.kube/config"
+    }
+
 EOF
 }
 
@@ -30,12 +36,12 @@ remote_state {
     if_exists = "overwrite_terragrunt"
   }
   config = {
-    bucket = "govstack-sandbox-${local.product}-${local.environment}"
+    bucket = "govstack-${local.product}-${local.environment}"
 
     key = "${path_relative_to_include()}/terraform.tfstate"
     region         = local.aws_region
     encrypt        = true
-    dynamodb_table = "sandbox-${local.product}-${local.environment}-lock-table"
+    dynamodb_table = "govstack-${local.product}-${local.environment}-lock-table"
   }
 }
 
