@@ -29,12 +29,6 @@ data "aws_iam_policy_document" "fargate_role_assume_document" {
   }
 }
 
-resource "aws_iam_role" "kube_rds_controller_role" {
-    name = "KubeRDSAccessRole"
-    assume_role_policy = data.aws_iam_policy_document.eks_role_assume_document.json
-
-}
-
 data "aws_iam_policy_document" "eks_role_assume_document" {
   statement {
     actions = ["sts:AssumeRoleWithWebIdentity"]
