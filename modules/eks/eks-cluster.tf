@@ -1,6 +1,6 @@
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "19.7.0"
+  version = "19.11.0"
 
   cluster_name    = var.cluster_name
   cluster_version = var.eks_version
@@ -45,7 +45,7 @@ module "eks" {
 
       instance_types = ["m5.large"]
 
-      min_size     = 2
+      min_size     = 1
       desired_size = 2
       max_size     = 4
       
@@ -60,7 +60,7 @@ module "eks" {
 
       instance_types = ["m5.large"]
 
-      min_size     = 2
+      min_size     = 1
       desired_size = 2
       max_size     = 4
       
