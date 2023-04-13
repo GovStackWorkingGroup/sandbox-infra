@@ -47,5 +47,8 @@ terragrunt-debug.tfvars.json
 *.js
 **/node_modules
 
+# Ignoring fetced certificate files
+tools/*.crt
+
 # system files
 .DS_Store
