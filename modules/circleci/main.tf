@@ -17,7 +17,7 @@ module "CircleCIRole" {
   for_each = { for project in var.projects : project.name => project }
 
   source       = "..//circlecirole"
-  circleci_url = local.circleci_url
+  circleci_url = trim(local.circleci_url, "https://")
   org_id       = var.org_id
   environment  = var.environment
 
