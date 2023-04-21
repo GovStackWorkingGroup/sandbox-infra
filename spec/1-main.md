@@ -1,6 +1,6 @@
 # GovStack Sandbox Infrastructure Documentation 
 
-This repository is a part of [GovStack sandbox](https://github.com/GovStackWorkingGroup/sandbox).
+This repository is part of the [GovStack sandbox](https://github.com/GovStackWorkingGroup/sandbox).
 
 ## How to run
 
