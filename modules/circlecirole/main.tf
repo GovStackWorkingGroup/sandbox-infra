@@ -4,6 +4,7 @@ locals {
   rolename = "CICDPipeline_${var.name}_Role_${var.environment}"
 }
 
+## Because assume role policy cannot contain resources that does not exist yet, we create incomplete policy at first
 data "aws_iam_policy_document" "cicd_pipeline_temp_assume_policy" {
   statement {
     actions = ["sts:AssumeRoleWithWebIdentity"]
@@ -24,6 +25,7 @@ data "aws_iam_policy_document" "cicd_pipeline_temp_assume_policy" {
   }
 }
 
+## Final assume role policy to be applied after creation of the role
 data "aws_iam_policy_document" "cicd_pipeline_assume_role_policy" {
   statement {
     actions = ["sts:AssumeRoleWithWebIdentity"]
@@ -52,6 +54,7 @@ data "aws_iam_policy_document" "cicd_pipeline_assume_role_policy" {
   }
 }
 
+# The role to be created, it ignores changes to assume role policy after creation
 resource "aws_iam_role" "CICDRole" {
 
   lifecycle {
@@ -92,7 +95,7 @@ resource "aws_iam_role_policy_attachment" "CircleCIEKSPolicyAttachment" {
   policy_arn = aws_iam_policy.CircleCIEKSPolicy.arn
 }
 
-
+# Updates the assume role policy of the role with aws cli as terraform does not support it out of the box (at least yet)
 resource "null_resource" "update_assume_role_policy" {
   depends_on = [
     aws_iam_role.CICDRole,
