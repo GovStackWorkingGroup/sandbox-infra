@@ -72,7 +72,9 @@ data "aws_iam_policy_document" "CircleCIEKSPolicyDocument" {
     sid = "1"
     actions = [
       "eks:DescribeCluster",
-      "eks:*"
+      "eks:*",
+      "s3:PutObject",
+      "s3:GetObject"
     ]
     resources = [
       "*"
@@ -104,7 +106,7 @@ resource "null_resource" "update_assume_role_policy" {
   provisioner "local-exec" {
     command = "aws iam update-assume-role-policy --role-name ${aws_iam_role.CICDRole.name} --policy-document '${data.aws_iam_policy_document.cicd_pipeline_assume_role_policy.json}'"
   }
-  triggers = { 
+  triggers = {
     trigger = sha256(data.aws_iam_policy_document.cicd_pipeline_assume_role_policy.json)
   }
 }
