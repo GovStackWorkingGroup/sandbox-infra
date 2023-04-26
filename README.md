@@ -1,16 +1,6 @@
-# Sandbox Infrastructure
+# Sandbox Infrastructure repository
 
-Contains infrastructure as terraform for the sandbox instances. Used by terragrunt.
+This repository is a part of [GovStack Sandbox project](https://github.com/GovStackWorkingGroup/sandbox).
 
-## Structure
-+ **live** - Contains terragrunt files for managing different environments. Divided by environment.
-+ **modules** - Contains modules for infra written in terraform
-
-## Current modules
-+ **eks** - Currently contains terraform files for creating new EKS cluster and setting up the VPC
-+ **ecr** - Contains terraform files for creating ECR image repositories
-+ **kube** - Contains configuration for the kubernetes
-### Temporarily here from portal
-+ **magiclink** - Contains cognito, some lambdas for creating the magic link and lambda and API for signIn for frontend to connect
-+ **cognitolambda** - Submodule for magiclink, creates and deploys the lambda and appropriate resources they need
+More information can be found in the [documentation](https://oleksii-1.gitbook.io/sandbox-infra/). 
 
