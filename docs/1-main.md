@@ -4,7 +4,7 @@ This repository is part of the [GovStack sandbox](https://github.com/GovStackWor
 
 ## How to run
 
-Contains infrastructure as terraform for the sandbox instances. Used by terragrunt.
+Contains infrastructure as [Terraform](https://www.terraform.io/) for the sandbox instances. Used by [terragrunt](https://terragrunt.gruntwork.io/).
 
 ## Structure
 + **live** - Contains terragrunt files for managing different environments. Divided by environment.

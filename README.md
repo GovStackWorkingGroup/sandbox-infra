@@ -1,4 +1,4 @@
-# Sandbox Infrastructure
+# Sandbox Infrastructure repository
 
 This repository is a part of [GovStack Sandbox project](https://github.com/GovStackWorkingGroup/sandbox).
 
