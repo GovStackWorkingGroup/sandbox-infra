@@ -13,13 +13,24 @@ data "aws_iam_policy_document" "pb_s3_role_policy" {
     sid = "1"
 
     actions = [
-      "s3:PutObject",
       "s3:ListBucket",
-      "s3:GetObject",
     ]
 
     resources = [
       aws_s3_bucket.pbb.arn,
+    ]
+  }
+
+  statement {
+    sid = "2"
+
+    actions = [
+      "s3:PutObject",
+      "s3:GetObject",
+    ]
+
+    resources = [
+      "${aws_s3_bucket.pbb.arn}/*",
     ]
   }
 }
