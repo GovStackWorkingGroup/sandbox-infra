@@ -111,7 +111,3 @@ resource "null_resource" "update_assume_role_policy" {
   }
 }
 
-
-output "RoleARN" {
-  value = aws_iam_role.CICDRole.arn
-}

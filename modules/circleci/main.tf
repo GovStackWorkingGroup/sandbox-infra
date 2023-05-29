@@ -28,10 +28,3 @@ module "CircleCIRole" {
 
 }
 
-output "oidc_arn" {
-  value = aws_iam_openid_connect_provider.cicd_oicd.arn
-}
-
-output "CircleCIRoleArns" {
-  value = module.CircleCIRole[*]
-}
