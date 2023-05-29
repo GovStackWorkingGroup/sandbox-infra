@@ -1,16 +1,5 @@
-module "eks" {
-  source  = "terraform-aws-modules/eks/aws"
-  version = "19.11.0"
-
-  cluster_name    = var.cluster_name
-  cluster_version = var.eks_version
-  cluster_enabled_log_types = ["api", "audit"]
-
-  vpc_id     = module.vpc.vpc_id
-  subnet_ids = module.vpc.private_subnets
-
-  manage_aws_auth_configmap = true
-  aws_auth_roles = [
+locals {
+  user_role_map = tolist([
     {
       rolearn = "arn:aws:iam::${var.account_id}:role/SandboxAdmin",
       username = "SandboxAdmin"
@@ -25,9 +14,33 @@ module "eks" {
       rolearn = "arn:aws:iam::${var.account_id}:role/CircleCIRole",
       username = "system:node:EKSGetTokenAuth",
       groups   = ["system:masters"]
+    },
+ ])
+  cicd_role_map = tolist([
+    for role_arn in var.cicd_rolearns: {
+      rolearn = role_arn
+      username = "system:node:EKSGetTokenAuth",
+      groups   = ["system:masters"]
     }
-  ]
+])
 
+  aws_auth_map = concat(local.user_role_map, local.cicd_role_map)
+}
+
+module "eks" {
+  source  = "terraform-aws-modules/eks/aws"
+  version = "19.11.0"
+
+  cluster_name    = var.cluster_name
+  cluster_version = var.eks_version
+  cluster_enabled_log_types = ["api", "audit"]
+
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.private_subnets
+
+  manage_aws_auth_configmap = true
+  aws_auth_roles = local.aws_auth_map
+  
   cluster_endpoint_public_access = true
 
   eks_managed_node_group_defaults = {
@@ -78,4 +91,16 @@ module "eks_blueprints_kubernetes_addons" {
 
   eks_cluster_id       = module.eks.cluster_name
   enable_amazon_eks_aws_ebs_csi_driver = true
+}
+
+output "cluster_arn" {
+  value = module.eks.cluster_arn
+}
+
+output "cluster_name" {
+  value = module.eks.cluster_name
+}
+
+output "auth_map" {
+  value = local.aws_auth_map
 }
