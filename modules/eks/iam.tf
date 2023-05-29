@@ -35,11 +35,6 @@ data "aws_iam_policy_document" "eks_role_assume_document" {
   }
 }
 
-resource "aws_iam_role_policy_attachment" "EKSRDSPolicyAttachment" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonRDSFullAccess"
-  role       = aws_iam_role.kube_rds_controller_role.name
-}
-
 resource "aws_iam_role_policy_attachment" "eksPodexectuonPolicyAttachment" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSFargatePodExecutionRolePolicy"
   role       = aws_iam_role.eks_fargate_role.name
