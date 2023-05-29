@@ -20,7 +20,7 @@ locals {
   
   projects = [
     { name = "sandbox-bb-payments",             project_id = "cdc99791-edf8-4dd4-8fff-6fea9fb6c302" },
-    { name = "sandbox-bb-digital-registries",   project_id = "36603874-7125-4106-8a22-4df79ede947f" },
-    { name = "sandbox-bb-information-mediator", project_id = "2a76c4ba-3f19-4cf4-a3fd-01d5671b7437" }
+    { name = "sandbox-bb-information-mediator", project_id = "2a76c4ba-3f19-4cf4-a3fd-01d5671b7437" },
+    { name = "sandbox-bb-digital-registries",   project_id = "36603874-7125-4106-8a22-4df79ede947f" }
  ]
 }
