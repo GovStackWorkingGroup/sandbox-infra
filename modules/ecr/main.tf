@@ -196,8 +196,8 @@ resource "aws_ecr_repository" "ecr_mifos-phee-ns-web-app" {
   }
 }
 
-resource "aws_ecr_repository" "ecr_sris_mock" {
-  name                 = "sris-mock/${var.environment}"
+resource "aws_ecr_repository" "ecr_mock_sris" {
+  name                 = "mock-sris/${var.environment}"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
