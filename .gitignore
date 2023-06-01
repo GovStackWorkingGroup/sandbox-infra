@@ -34,6 +34,9 @@ override.tf.json
 terraform.rc
 
 
+# Terraform lock files
+**/.terraform.lock.hcl
+
 ### Terragrunt ###
 # terragrunt cache directories
 **/.terragrunt-cache/*
@@ -46,6 +49,9 @@ terragrunt-debug.tfvars.json
 *.zip
 *.js
 **/node_modules
+
+# Ignoring fetced certificate files
+tools/*.crt
 
 # system files
 .DS_Store
