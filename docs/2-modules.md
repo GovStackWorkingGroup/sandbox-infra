@@ -19,11 +19,12 @@ Repositories for different images should follow a namespace naming convention:  
 > **Note**
 > ECR may contain BBs Helm charts.
 
-### ECR contain next BBs
+### ECR contain next groups of images
 
 * [open-IMIS](https://github.com/GovStackWorkingGroup/sandbox-open-imis)
 * [payment](https://github.com/GovStackWorkingGroup/sandbox-ph-ee)
 * [information-mediator](https://github.com/GovStackWorkingGroup/sandbox-information-mediator)
+* [Mock-SRIS](https://github.com/GovStackWorkingGroup/sandbox-portal-backend)
 
 ## Kubernetes
 Contains configuration for the kubernetes cluster.
