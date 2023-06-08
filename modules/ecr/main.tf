@@ -205,8 +205,8 @@ resource "aws_ecr_repository" "ecr_mock_sris" {
   }
 }
 
-resource "aws_ecr_repository" "ecr_sandbox-playgroud-ui" {
-  name                 = "sandbox-playgroud/${var.environment}-ui"
+resource "aws_ecr_repository" "ecr_app-usct-ui" {
+  name                 = "app/usct/${var.environment}-ui"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
