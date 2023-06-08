@@ -204,3 +204,12 @@ resource "aws_ecr_repository" "ecr_mock_sris" {
     scan_on_push = true
   }
 }
+
+resource "aws_ecr_repository" "ecr_sandbox-playgroud-ui" {
+  name                 = "sandbox-playgroud/${var.environment}-ui"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}

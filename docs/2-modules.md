@@ -25,6 +25,7 @@ Repositories for different images should follow a namespace naming convention:  
 * [payment](https://github.com/GovStackWorkingGroup/sandbox-ph-ee)
 * [information-mediator](https://github.com/GovStackWorkingGroup/sandbox-information-mediator)
 * [Mock-SRIS](https://github.com/GovStackWorkingGroup/sandbox-portal-backend)
+* [Sandbox-playgroud-ui](https://github.com/GovStackWorkingGroup/sandbox-playgroud)
 
 ## Kubernetes
 Contains configuration for the kubernetes cluster.
