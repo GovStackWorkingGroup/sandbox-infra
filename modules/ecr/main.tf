@@ -213,3 +213,12 @@ resource "aws_ecr_repository" "ecr_app-usct-ui" {
     scan_on_push = true
   }
 }
+
+resource "aws_ecr_repository" "ecr_payment_bb_emulator" {
+  name                 = "bb/payments/emulator/${var.environment}-backend"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
