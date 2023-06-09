@@ -196,8 +196,17 @@ resource "aws_ecr_repository" "ecr_mifos-phee-ns-web-app" {
   }
 }
 
-resource "aws_ecr_repository" "ecr_mock_sris" {
-  name                 = "mock-sris/${var.environment}-app"
+resource "aws_ecr_repository" "ecr_app-usct-backend" {
+  name                 = "app/usct/${var.environment}-backend"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_ecr_repository" "ecr_app-usct-ui" {
+  name                 = "app/usct/${var.environment}-ui"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
