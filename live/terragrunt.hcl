@@ -22,9 +22,7 @@ generate "provider" {
       region = "${local.aws_region}"
       allowed_account_ids = ["${local.account_id}"]
     }
-    provider "kubernetes" {
-      config_path = "~/.kube/config"
-    }
+
 
 EOF
 }
@@ -48,3 +46,11 @@ remote_state {
 inputs = merge(
     local.env_vars.locals
 )
+/*
+    provider "kubernetes" {
+      config_path = "~/.kube/config"
+    }
+
+    */
+
+    
