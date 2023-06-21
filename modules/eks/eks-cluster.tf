@@ -38,6 +38,7 @@ module "eks" {
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
+  #create_aws_auth_configmap = true
   manage_aws_auth_configmap = true
   aws_auth_roles = local.aws_auth_map
   
@@ -87,10 +88,18 @@ module "eks" {
 }
 
 module "eks_blueprints_kubernetes_addons" {
-  source = "github.com/aws-ia/terraform-aws-eks-blueprints/modules/kubernetes-addons"
+  source = "aws-ia/eks-blueprints-addons/aws"
 
-  eks_cluster_id       = module.eks.cluster_name
-  enable_amazon_eks_aws_ebs_csi_driver = true
+  cluster_name      = module.eks.cluster_name
+  cluster_endpoint  = module.eks.cluster_endpoint
+  cluster_version   = module.eks.cluster_version
+  oidc_provider_arn = module.eks.oidc_provider_arn
+
+  eks_addons = {
+    aws-ebs-csi-driver = {
+    most_recent = true
+    }
+  }
 }
 
 output "cluster_arn" {
