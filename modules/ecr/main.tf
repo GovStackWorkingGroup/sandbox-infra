@@ -231,3 +231,30 @@ resource "aws_ecr_repository" "ecr_mock_sris" {
     scan_on_push = true
   }
 }
+
+resource "aws_ecr_repository" "ecr_digital_registries_bb_emulator" {
+  name                 = "bb/digital-registries/emulator/${var.environment}-backend"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_ecr_repository" "ecr_portal_frontend" {
+  name                 = "app/portal/${var.environment}-frontend"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_ecr_repository" "ecr_portal_backend" {
+  name                 = "app/portal/${var.environment}-backend"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
