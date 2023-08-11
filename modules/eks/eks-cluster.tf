@@ -53,6 +53,10 @@ module "eks" {
     create_security_group = false
   }
 
+  node_security_group_tags = {
+    "kubernetes.io/cluster/${var.cluster_name}" = null
+  }
+
   eks_managed_node_groups = {
     one = {
       name = "node-group-1"
@@ -152,7 +156,7 @@ resource "kubernetes_service_account" "service-account" {
         "app.kubernetes.io/component"= "controller"
     }
     annotations = {
-      "eks.amazonaws.com/role-arn" = "arn:aws:iam::${var.account_id}:policy/AWSLoadBalancerControllerIAMPolicy"
+      "eks.amazonaws.com/role-arn" = module.lb_role.iam_role_arn
       "eks.amazonaws.com/sts-regional-endpoints" = "true"
     }
   }
@@ -194,7 +198,7 @@ resource "helm_release" "lb" {
 
   set {
     name  = "clusterName"
-    value = module.eks.cluster_endpoint
+    value = var.cluster_name
   }
 }
 
