@@ -53,6 +53,10 @@ module "eks" {
     create_security_group = false
   }
 
+  node_security_group_tags = {
+    "kubernetes.io/cluster/${var.cluster_name}" = null
+  }
+
   eks_managed_node_groups = {
     one = {
       name = "node-group-1"
@@ -87,6 +91,20 @@ module "eks" {
 
 }
 
+module "ebs_csi_irsa_role" {
+	source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+
+	role_name             = "${var.cluster_name}-ebs-csi-controller-sa-irsa"
+	attach_ebs_csi_policy = true
+
+	oidc_providers = {
+		ex = {
+			provider_arn               = module.eks.oidc_provider_arn
+			namespace_service_accounts = ["kube-system:ebs-csi-controller-sa"]
+		}
+	}
+}
+
 module "eks_blueprints_kubernetes_addons" {
   source = "aws-ia/eks-blueprints-addons/aws"
 
@@ -97,10 +115,93 @@ module "eks_blueprints_kubernetes_addons" {
 
   eks_addons = {
     aws-ebs-csi-driver = {
-    most_recent = true
+      most_recent = true
+      service_account_role_arn = module.ebs_csi_irsa_role.iam_role_arn
     }
   }
 }
+
+module "lb_role" {
+  source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+
+  role_name = "${var.environment}_eks_lb"
+  attach_load_balancer_controller_policy = true
+
+  oidc_providers = {
+    main = {
+      provider_arn               = module.eks.oidc_provider_arn
+      namespace_service_accounts = ["kube-system:aws-load-balancer-controller"]
+    }
+  }
+}
+
+provider "helm" {
+  kubernetes {
+    host                   = module.eks.cluster_endpoint
+    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+    exec {
+      api_version = "client.authentication.k8s.io/v1"
+      args        = ["eks", "get-token", "--cluster-name", var.cluster_name]
+      command     = "aws"
+    }
+  }
+}
+
+resource "kubernetes_service_account" "service-account" {
+  metadata {
+    name = "aws-load-balancer-controller"
+    namespace = "kube-system"
+    labels = {
+        "app.kubernetes.io/name"= "aws-load-balancer-controller"
+        "app.kubernetes.io/component"= "controller"
+    }
+    annotations = {
+      "eks.amazonaws.com/role-arn" = module.lb_role.iam_role_arn
+      "eks.amazonaws.com/sts-regional-endpoints" = "true"
+    }
+  }
+}
+
+resource "helm_release" "lb" {
+  name       = "aws-load-balancer-controller"
+  repository = "https://aws.github.io/eks-charts"
+  chart      = "aws-load-balancer-controller"
+  namespace  = "kube-system"
+  depends_on = [
+    kubernetes_service_account.service-account
+  ]
+
+  set {
+    name  = "region"
+    value = "${var.region}"
+  }
+
+  set {
+    name  = "vpcId"
+    value = module.vpc.vpc_id
+  }
+
+  set {
+    name  = "image.repository"
+    value = "602401143452.dkr.ecr.eu-central-1.amazonaws.com/amazon/aws-load-balancer-controller"
+  }
+
+  set {
+    name  = "serviceAccount.create"
+    value = "false"
+  }
+
+  set {
+    name  = "serviceAccount.name"
+    value = "aws-load-balancer-controller"
+  }
+
+  set {
+    name  = "clusterName"
+    value = var.cluster_name
+  }
+}
+
 
 output "cluster_arn" {
   value = module.eks.cluster_arn
