@@ -1,28 +1,28 @@
 locals {
   user_role_map = tolist([
     {
-      rolearn = "arn:aws:iam::${var.account_id}:role/SandboxAdmin",
+      rolearn  = "arn:aws:iam::${var.account_id}:role/SandboxAdmin",
       username = "SandboxAdmin"
       groups   = ["system:masters"]
     },
     {
-      rolearn = "arn:aws:iam::${var.account_id}:role/SandboxDeveloper",
+      rolearn  = "arn:aws:iam::${var.account_id}:role/SandboxDeveloper",
       username = "SandboxDeveloper"
       groups   = ["system:masters"]
     },
     {
-      rolearn = "arn:aws:iam::${var.account_id}:role/CircleCIRole",
+      rolearn  = "arn:aws:iam::${var.account_id}:role/CircleCIRole",
       username = "system:node:EKSGetTokenAuth",
       groups   = ["system:masters"]
     },
- ])
+  ])
   cicd_role_map = tolist([
-    for role_arn in var.cicd_rolearns: {
-      rolearn = role_arn
+    for role_arn in var.cicd_rolearns : {
+      rolearn  = role_arn
       username = "system:node:EKSGetTokenAuth",
       groups   = ["system:masters"]
     }
-])
+  ])
 
   aws_auth_map = concat(local.user_role_map, local.cicd_role_map)
 }
@@ -31,8 +31,8 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "19.11.0"
 
-  cluster_name    = var.cluster_name
-  cluster_version = var.eks_version
+  cluster_name              = var.cluster_name
+  cluster_version           = var.eks_version
   cluster_enabled_log_types = ["api", "audit"]
 
   vpc_id     = module.vpc.vpc_id
@@ -40,21 +40,16 @@ module "eks" {
 
   #create_aws_auth_configmap = true
   manage_aws_auth_configmap = true
-  aws_auth_roles = local.aws_auth_map
-  
+  aws_auth_roles            = local.aws_auth_map
+
   cluster_endpoint_public_access = true
+  create_cluster_security_group  = false
 
   eks_managed_node_group_defaults = {
     ami_type = "AL2_x86_64"
 
     attach_cluster_primary_security_group = true
 
-    # Disabling and using externally provided security groups
-    create_security_group = false
-  }
-
-  node_security_group_tags = {
-    "kubernetes.io/cluster/${var.cluster_name}" = null
   }
 
   eks_managed_node_groups = {
@@ -63,18 +58,15 @@ module "eks" {
 
       #instance_types = ["m5.large"]
       instance_types = ["var.instance_types"]
+      subnet_ids     = [module.vpc.private_subnets[0]]
 
       use_custom_launch_template = false
-      disk_size = var.disk_size
+      disk_size                  = var.disk_size
 
       min_size     = 1
       desired_size = 2
       max_size     = 4
-      
 
-      vpc_security_group_ids = [
-        aws_security_group.node_group_one.id
-      ]
     }
 
     two = {
@@ -82,35 +74,32 @@ module "eks" {
 
       #instance_types = ["m5.large"]
       instance_types = [var.instance_type]
+      subnet_ids     = [module.vpc.private_subnets[1]]
 
       use_custom_launch_template = false
-      disk_size = var.disk_size
+      disk_size                  = var.disk_size
 
       min_size     = 1
       desired_size = 2
       max_size     = 4
-      
 
-      vpc_security_group_ids = [
-        aws_security_group.node_group_two.id
-      ]
     }
-  } 
+  }
 
 }
 
 module "ebs_csi_irsa_role" {
-	source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
 
-	role_name             = "${var.cluster_name}-ebs-csi-controller-sa-irsa"
-	attach_ebs_csi_policy = true
+  role_name             = "${var.cluster_name}-ebs-csi-controller-sa-irsa"
+  attach_ebs_csi_policy = true
 
-	oidc_providers = {
-		ex = {
-			provider_arn               = module.eks.oidc_provider_arn
-			namespace_service_accounts = ["kube-system:ebs-csi-controller-sa"]
-		}
-	}
+  oidc_providers = {
+    ex = {
+      provider_arn               = module.eks.oidc_provider_arn
+      namespace_service_accounts = ["kube-system:ebs-csi-controller-sa"]
+    }
+  }
 }
 
 module "eks_blueprints_kubernetes_addons" {
@@ -123,7 +112,7 @@ module "eks_blueprints_kubernetes_addons" {
 
   eks_addons = {
     aws-ebs-csi-driver = {
-      most_recent = true
+      most_recent              = true
       service_account_role_arn = module.ebs_csi_irsa_role.iam_role_arn
     }
   }
@@ -132,7 +121,7 @@ module "eks_blueprints_kubernetes_addons" {
 module "lb_role" {
   source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
 
-  role_name = "${var.environment}_eks_lb"
+  role_name                              = "${var.environment}_eks_lb"
   attach_load_balancer_controller_policy = true
 
   oidc_providers = {
@@ -157,14 +146,14 @@ provider "helm" {
 
 resource "kubernetes_service_account" "service-account" {
   metadata {
-    name = "aws-load-balancer-controller"
+    name      = "aws-load-balancer-controller"
     namespace = "kube-system"
     labels = {
-        "app.kubernetes.io/name"= "aws-load-balancer-controller"
-        "app.kubernetes.io/component"= "controller"
+      "app.kubernetes.io/name"      = "aws-load-balancer-controller"
+      "app.kubernetes.io/component" = "controller"
     }
     annotations = {
-      "eks.amazonaws.com/role-arn" = module.lb_role.iam_role_arn
+      "eks.amazonaws.com/role-arn"               = module.lb_role.iam_role_arn
       "eks.amazonaws.com/sts-regional-endpoints" = "true"
     }
   }
@@ -181,7 +170,7 @@ resource "helm_release" "lb" {
 
   set {
     name  = "region"
-    value = "${var.region}"
+    value = var.region
   }
 
   set {
