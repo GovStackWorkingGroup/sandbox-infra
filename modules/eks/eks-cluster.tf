@@ -61,7 +61,11 @@ module "eks" {
     one = {
       name = "node-group-1"
 
-      instance_types = ["m5.large"]
+      #instance_types = ["m5.large"]
+      instance_types = ["var.instance_types"]
+
+      use_custom_launch_template = false
+      disk_size = var.disk_size
 
       min_size     = 1
       desired_size = 2
@@ -76,7 +80,11 @@ module "eks" {
     two = {
       name = "node-group-2"
 
-      instance_types = ["m5.large"]
+      #instance_types = ["m5.large"]
+      instance_types = [var.instance_type]
+
+      use_custom_launch_template = false
+      disk_size = var.disk_size
 
       min_size     = 1
       desired_size = 2

@@ -1,3 +1,7 @@
+dependency "circleci" {
+  config_path = "../circleci"
+}
+
 include "root" {
   path = find_in_parent_folders()
 }
@@ -10,5 +14,7 @@ include "commons" {
 #environment specific inputs 
 
 inputs = {
- #
+ cicd_rolearns = dependency.circleci.outputs.cicd_rolearns
+ instance_type = "t3.2xlarge"
+ disk_size = 100
 }
