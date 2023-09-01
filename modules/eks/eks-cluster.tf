@@ -44,12 +44,11 @@ module "eks" {
 
   cluster_endpoint_public_access = true
   create_cluster_security_group  = false
+  create_node_security_group     = false
 
   eks_managed_node_group_defaults = {
-    ami_type = "AL2_x86_64"
-
+    ami_type                              = "AL2_x86_64"
     attach_cluster_primary_security_group = true
-
   }
 
   eks_managed_node_groups = {
