@@ -17,4 +17,5 @@ inputs = {
  cicd_rolearns = dependency.circleci.outputs.cicd_rolearns
  instance_type = "t3.2xlarge"
  disk_size = 100
+ vpc_cidr = "10.42.0.0/16"
 }
