@@ -56,7 +56,7 @@ module "eks" {
       name = "node-group-1"
 
       #instance_types = ["m5.large"]
-      instance_types = ["var.instance_types"]
+      instance_types = [var.instance_type]
       subnet_ids     = [module.vpc.private_subnets[0]]
 
       use_custom_launch_template = false
