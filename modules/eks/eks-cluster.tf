@@ -156,6 +156,7 @@ resource "kubernetes_service_account" "service-account" {
       "eks.amazonaws.com/sts-regional-endpoints" = "true"
     }
   }
+  depends_on = [null_resource.kubectl]
 }
 
 resource "helm_release" "lb" {
@@ -198,6 +199,11 @@ resource "helm_release" "lb" {
   }
 }
 
+resource "null_resource" "kubectl" {
+    provisioner "local-exec" {
+        command = "aws eks update-kubeconfig --region ${var.region} --name ${var.cluster_name}"
+    }
+}
 
 output "cluster_arn" {
   value = module.eks.cluster_arn
@@ -209,4 +215,8 @@ output "cluster_name" {
 
 output "auth_map" {
   value = local.aws_auth_map
+}
+
+output "region" {
+  value = var.region
 }
