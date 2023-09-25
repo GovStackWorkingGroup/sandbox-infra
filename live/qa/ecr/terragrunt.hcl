@@ -3,7 +3,7 @@ include "root" {
 }
 
 include "commons" {
-    path = "${dirname(find_in_parent_folders())}/common/bb-payment.hcl"
+    path = "${dirname(find_in_parent_folders())}/common/ecr.hcl"
     expose = true
 }
 

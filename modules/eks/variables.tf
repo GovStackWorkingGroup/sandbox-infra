@@ -31,3 +31,13 @@ variable "account_id" {
 variable "cicd_rolearns" {
   type = list(string)
 }
+
+variable "instance_type" {
+  description = "Instance Type"
+  type        = string
+}
+
+variable "disk_size" {
+  description = "Disk Size"
+  type        = number
+}

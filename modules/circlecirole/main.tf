@@ -44,14 +44,6 @@ data "aws_iam_policy_document" "cicd_pipeline_assume_role_policy" {
       variable = "${var.circleci_url}:sub"
     }
   }
-  statement {
-    sid     = "Statement1"
-    actions = ["sts:AssumeRole"]
-    principals {
-      type        = "AWS"
-      identifiers = ["arn:aws:sts::${data.aws_caller_identity.current.account_id}:assumed-role/${local.rolename}/CircleSession"]
-    }
-  }
 }
 
 # The role to be created, it ignores changes to assume role policy after creation
@@ -72,7 +64,7 @@ data "aws_iam_policy_document" "CircleCIEKSPolicyDocument" {
     sid = "1"
     actions = [
       "eks:DescribeCluster",
-      "eks:*",
+      "eks:AccessKubernetesApi",
       "s3:PutObject",
       "s3:GetObject"
     ]
@@ -87,9 +79,9 @@ resource "aws_iam_policy" "CircleCIEKSPolicy" {
   policy = data.aws_iam_policy_document.CircleCIEKSPolicyDocument.json
 }
 
-resource "aws_iam_role_policy_attachment" "ImageBuilderforContainerPolicyAttatchment" {
+resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerRegistryPowerUserAttachment" {
   role       = aws_iam_role.CICDRole.name
-  policy_arn = "arn:aws:iam::aws:policy/EC2InstanceProfileForImageBuilderECRContainerBuilds"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
 }
 
 resource "aws_iam_role_policy_attachment" "CircleCIEKSPolicyAttachment" {
