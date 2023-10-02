@@ -1,6 +1,5 @@
-# Sandbox Infrastructure repository
+# Govstack Sandbox Infrastructure
 
-This repository is a part of [GovStack Sandbox project](https://github.com/GovStackWorkingGroup/sandbox).
+This repository is a part of [GovStack](https://govstack.global) [Sandbox](https://github.com/GovStackWorkingGroup/sandbox).
 
-More information can be found in the [documentation](https://oleksii-1.gitbook.io/sandbox-infra/). 
-
+The Sandbox Infrastucture provides Terraform scripts for setting up the Sandbox infrastucture in AWS.  More information can be found in the [documentation](docs/1-main.md).

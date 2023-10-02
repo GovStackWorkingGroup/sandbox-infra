@@ -1,11 +1,12 @@
 # Modules
 
-## EKS 
+## EKS
+
 [AWS Elastic Kubernetes Service](https://aws.amazon.com/eks/) contains terraform files
 for creating kubernetes cluster and setting up the VPC.
 
 
-## Elastic Container Registry
+## ECR (Elastic Container Registry)
 
 Sandbox uses a private container registry [AWS ECR](https://aws.amazon.com/ecr/) for storing container images.
 
@@ -26,7 +27,9 @@ APPs: app/{use-case}/{dev/prod/etc}/{component-name}
 * [app/usct/ui](https://github.com/GovStackWorkingGroup/sandbox-playgroud)
 
 ## Kubernetes
-Contains configuration for the kubernetes cluster.
+
+Contains additional configuration for the kubernetes cluster.
+Currently empty.
 
 ### Environments
 
