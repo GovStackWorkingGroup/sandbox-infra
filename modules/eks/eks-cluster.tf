@@ -15,6 +15,14 @@ locals {
       username = "system:node:EKSGetTokenAuth",
       groups   = ["system:masters"]
     },
+    {
+      rolearn  = module.eks_blueprints_kubernetes_addons.karpenter.node_iam_role_arn
+      username = "system:node:{{EC2PrivateDNSName}}"
+      groups = [
+        "system:bootstrappers",
+        "system:nodes",
+      ]
+    },
   ])
   cicd_role_map = tolist([
     for role_arn in var.cicd_rolearns : {
@@ -62,10 +70,10 @@ module "eks" {
       use_custom_launch_template = false
       disk_size                  = var.disk_size
 
-      min_size     = 1
-      desired_size = 2
-      max_size     = 4
-
+      //min_size     = 1
+      //desired_size = 2
+      //max_size     = 4
+      asg_max_size = 4
     }
 
     two = {
@@ -78,10 +86,10 @@ module "eks" {
       use_custom_launch_template = false
       disk_size                  = var.disk_size
 
-      min_size     = 1
-      desired_size = 2
-      max_size     = 4
-
+      //min_size     = 1
+      //desired_size = 2
+      //max_size     = 4
+      asg_max_size = 4
     }
   }
 
@@ -101,6 +109,16 @@ module "ebs_csi_irsa_role" {
   }
 }
 
+# Required for public ECR where Karpenter artifacts are hosted
+provider "aws" {
+  region = "us-east-1"
+  alias  = "virginia"
+}
+
+data "aws_ecrpublic_authorization_token" "token" {
+  provider = aws.virginia
+}
+
 module "eks_blueprints_kubernetes_addons" {
   source = "aws-ia/eks-blueprints-addons/aws"
 
@@ -116,6 +134,78 @@ module "eks_blueprints_kubernetes_addons" {
       service_account_role_arn = module.ebs_csi_irsa_role.iam_role_arn
     }
   }
+
+  enable_karpenter = true
+  
+  karpenter = {
+    repository = "oci://public.ecr.aws/karpenter"
+    repository_username = data.aws_ecrpublic_authorization_token.token.user_name
+    repository_password = data.aws_ecrpublic_authorization_token.token.password
+  }
+
+  tags = {
+    "karpenter.sh/discovery" = module.eks.cluster_name
+  }
+}
+
+#https://karpenter.sh/preview/concepts/provisioners/
+resource "kubectl_manifest" "karpenter_provisioner" {
+  yaml_body = <<-YAML
+    apiVersion: karpenter.sh/v1alpha5
+    kind: Provisioner
+    metadata:
+      name: default
+    spec:
+      consolidation: 
+        enabled: true
+      requirements:
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["spot", "on-demand"]
+      limits:
+        resources:
+          cpu: 1000
+      requests:
+        resources:
+          ephemeral-storage: "100Gi"
+      providerRef:
+        name: default
+  YAML
+
+  depends_on = [
+    module.eks_blueprints_kubernetes_addons
+  ]
+}
+
+resource "kubectl_manifest" "karpenter_node_template" {
+  yaml_body = <<-YAML
+    apiVersion: karpenter.k8s.aws/v1alpha1
+    kind: AWSNodeTemplate
+    metadata:
+      name: default
+    spec:
+      blockDeviceMappings:
+        - deviceName: /dev/xvda
+          ebs:
+            volumeType: gp3
+            volumeSize: 100Gi
+            deleteOnTermination: true
+      subnetSelector:
+        kubernetes.io/cluster/${var.cluster_name}: shared
+      securityGroupSelector:
+        kubernetes.io/cluster/${var.cluster_name}: '*'
+      instanceProfile: ${module.eks_blueprints_kubernetes_addons.karpenter.node_instance_profile_name}
+      tags:
+        karpenter.sh/discovery: ${var.cluster_name}
+  YAML
+
+  depends_on = [
+    module.eks_blueprints_kubernetes_addons
+  ]
+}
+
+resource "aws_iam_service_linked_role" "karpenter_spot" {
+  aws_service_name = "spot.amazonaws.com"
 }
 
 output "cluster_arn" {
