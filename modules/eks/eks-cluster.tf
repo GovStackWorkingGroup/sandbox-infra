@@ -73,7 +73,7 @@ module "eks" {
       //min_size     = 1
       //desired_size = 2
       //max_size     = 4
-      asg_max_size = 4
+      asg_max_size = 16
     }
 
     two = {
@@ -89,7 +89,7 @@ module "eks" {
       //min_size     = 1
       //desired_size = 2
       //max_size     = 4
-      asg_max_size = 4
+      asg_max_size = 16
     }
   }
 
@@ -159,9 +159,12 @@ resource "kubectl_manifest" "karpenter_provisioner" {
       consolidation: 
         enabled: true
       requirements:
+        - key: "karpenter.k8s.aws/instance-category"
+          operator: In
+          values: ["t3.medium", "t3.large", "t3.xlarge", "t3.2xlarge", "t3a.medium", "t3a.large", "t3a.xlarge", "t3a.2xlarge"]
         - key: karpenter.sh/capacity-type
           operator: In
-          values: ["spot", "on-demand"]
+          values: ["on-demand"]
       limits:
         resources:
           cpu: 1000
