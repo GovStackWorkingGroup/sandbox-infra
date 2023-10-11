@@ -128,6 +128,7 @@ module "eks_blueprints_kubernetes_addons" {
   oidc_provider_arn = module.eks.oidc_provider_arn
 
   enable_aws_load_balancer_controller = true
+  enable_metrics_server               = true
   eks_addons = {
     aws-ebs-csi-driver = {
       most_recent              = true
@@ -159,9 +160,12 @@ resource "kubectl_manifest" "karpenter_provisioner" {
       consolidation: 
         enabled: true
       requirements:
-        - key: "karpenter.k8s.aws/instance-category"
+        - key: "karpenter.k8s.aws/instance-family"
           operator: In
-          values: ["t3.medium", "t3.large", "t3.xlarge", "t3.2xlarge", "t3a.medium", "t3a.large", "t3a.xlarge", "t3a.2xlarge"]
+          values: ["t3", "t3a"]
+        - key: "karpenter.k8s.aws/instance-size"
+          operator: In
+          values: ["medium", "large", "xlarge", "2xlarge"]
         - key: karpenter.sh/capacity-type
           operator: In
           values: ["on-demand"]
@@ -206,10 +210,6 @@ resource "kubectl_manifest" "karpenter_node_template" {
   depends_on = [
     module.eks_blueprints_kubernetes_addons
   ]
-}
-
-resource "aws_iam_service_linked_role" "karpenter_spot" {
-  aws_service_name = "spot.amazonaws.com"
 }
 
 output "cluster_arn" {
