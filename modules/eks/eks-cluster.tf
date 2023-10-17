@@ -127,8 +127,6 @@ module "eks_blueprints_kubernetes_addons" {
   cluster_version   = module.eks.cluster_version
   oidc_provider_arn = module.eks.oidc_provider_arn
 
-  enable_aws_load_balancer_controller = true
-  enable_metrics_server               = true
   eks_addons = {
     aws-ebs-csi-driver = {
       most_recent              = true
@@ -136,12 +134,15 @@ module "eks_blueprints_kubernetes_addons" {
     }
   }
 
-  enable_karpenter = true
+  enable_aws_load_balancer_controller = true
+  enable_metrics_server               = true
+  enable_karpenter                    = true
   
   karpenter = {
     repository = "oci://public.ecr.aws/karpenter"
     repository_username = data.aws_ecrpublic_authorization_token.token.user_name
     repository_password = data.aws_ecrpublic_authorization_token.token.password
+    timeout = 1200
   }
 
   tags = {
