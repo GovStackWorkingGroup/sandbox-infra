@@ -37,7 +37,7 @@ locals {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "19.11.0"
+  version = "~> 19.0"
 
   cluster_name              = var.cluster_name
   cluster_version           = var.eks_version
@@ -55,44 +55,26 @@ module "eks" {
   create_node_security_group     = false
 
   eks_managed_node_group_defaults = {
-    ami_type                              = "AL2_x86_64"
+    ami_type = "AL2_x86_64"
+    instance_types = [var.instance_type]
     attach_cluster_primary_security_group = true
+    use_custom_launch_template = false
+    disk_size = var.disk_size
+    disk_type = "gp3"
+    asg_max_size = 16
   }
 
   eks_managed_node_groups = {
     one = {
       name = "node-group-1"
-
-      #instance_types = ["m5.large"]
-      instance_types = [var.instance_type]
       subnet_ids     = [module.vpc.private_subnets[0]]
-
-      use_custom_launch_template = false
-      disk_size                  = var.disk_size
-
-      //min_size     = 1
-      //desired_size = 2
-      //max_size     = 4
-      asg_max_size = 16
     }
 
     two = {
       name = "node-group-2"
-
-      #instance_types = ["m5.large"]
-      instance_types = [var.instance_type]
       subnet_ids     = [module.vpc.private_subnets[1]]
-
-      use_custom_launch_template = false
-      disk_size                  = var.disk_size
-
-      //min_size     = 1
-      //desired_size = 2
-      //max_size     = 4
-      asg_max_size = 16
     }
   }
-
 }
 
 module "ebs_csi_irsa_role" {
