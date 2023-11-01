@@ -199,6 +199,39 @@ resource "kubectl_manifest" "karpenter_node_template" {
   ]
 }
 
+resource "kubernetes_storage_class" "gp3" {
+  metadata {
+    name = "gp3"
+    annotations = {
+      "storageclass.kubernetes.io/is-default-class" : "true"
+    }
+  }
+
+  storage_provisioner    = "ebs.csi.aws.com"
+  reclaim_policy         = "Delete"
+  allow_volume_expansion = true
+  volume_binding_mode    = "WaitForFirstConsumer"
+  parameters = {
+    fsType    = "ext4"
+    encrypted = true
+    type      = "gp3"
+  }
+}
+
+resource "null_resource" "kubectl" {
+    provisioner "local-exec" {
+        command = "aws eks --region ${var.region} update-kubeconfig --name ${module.eks.cluster_name}"
+    }
+}
+
+resource "null_resource" "remove_gp2_aws_ebs_storage_class" {
+  provisioner "local-exec" {
+    command = "kubectl delete storageclass gp2"
+  }
+
+  depends_on = [module.eks]
+}
+
 output "cluster_arn" {
   value = module.eks.cluster_arn
 }
