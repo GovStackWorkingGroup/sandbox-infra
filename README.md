@@ -9,16 +9,16 @@ The Sandbox Infrastructure provides the lowest layer of the Sandbox — a Kubern
 ## Structure
 
 - [live](live) - Contains Terragrunt files for managing different environments, divided by environment.
-- [modules](modules) - Contains [modules](docs/modules.md) for infrastructure written in Terraform.
+- [modules](modules) - Contains [Terraform modules](docs/modules.md) for the infrastructure.
 
 ## Getting started
 
 You need the following tools:
 
-- [Terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
-- [Terragrunt](https://terragrunt.gruntwork.io/docs/getting-started/install/)
 - [AWS Command line tool](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
 - [Kubectl](https://kubernetes.io/docs/tasks/tools/)
+- [Terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
+- [Terragrunt](https://terragrunt.gruntwork.io/docs/getting-started/install/)
 
 Verify that you have AWS credentials properly configured.
 
@@ -35,31 +35,23 @@ Verify that you have AWS credentials properly configured.
    If everything looks valid, run `terragrunt apply` to deploy the infrastructure.
    Note that module Kube is dependent on EKS, so be sure to run EKS first.
 
-## Specifics for AWS Terraform cluster destroy with enabled Karpenter - Tear Down & Clean-Up
+## Cleaning up
 
-{% hint style="info" %} Because Karpenter manages the state of node resources outside of Terraform, Karpenter created resources will need to be de-provisioned first before removing the remaining resources with Terraform. {% endhint %}
-
-1. Remove the example deployment created above and any nodes created by Karpenter (in the example is tomcatinfra):
+Because [Karpenter](https://karpenter.sh/) manages nodes outside of Terraform, remove all deployments 
+and wait for Karpenter to scale down the cluster. For example: 
 
 ```shell 
-kubectl delete deployment tomcatinfra
+aws eks update-kubeconfig --name my-cluster
+kubectl delete deployment my-deployment
 ```
 
 Wait for nodes to be removed by Karpenter or execute below command to force remove the nodes:
-
 ```shell 
 kubectl delete node -l karpenter.sh/provisioner-name=default
 ```
 
-2. Remove the resources created by Terraform
-
-```shell 
+Finally, remove the resources created by Terraform:
+```shell
+cd live/<env>/<module>
 terragrunt destroy
 ```
-
-{% hint style="info" %} Example deployment: 
-
-```shell 
-kubectl create deployment tomcatinfra --image=saravak/tomcat8 --replicas=21
-``` 
-{% endhint %}
