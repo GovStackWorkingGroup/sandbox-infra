@@ -30,6 +30,7 @@ variable "account_id" {
 
 variable "cicd_rolearns" {
   type = list(string)
+  default = []
 }
 
 variable "instance_type" {
