@@ -267,3 +267,12 @@ resource "aws_ecr_repository" "ecr_portal_backend" {
     scan_on_push = true
   }
 }
+
+resource "aws_ecr_repository" "ecr_app-bp-frontend" {
+  name                 = "app/bp/${var.environment}-frontend"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}

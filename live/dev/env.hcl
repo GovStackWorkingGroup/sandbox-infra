@@ -24,6 +24,7 @@ locals {
     { name = "sandbox-bb-digital-registries",   project_id = "36603874-7125-4106-8a22-4df79ede947f" },
     { name = "sandbox-playground",              project_id = "e530981a-3801-4366-9181-3371eee0d56a" },
     { name = "sandbox-app-portal-frontend",     project_id = "301cb483-dd22-4501-977e-4f1918c87657" },
-    { name = "sandbox-app-portal-backend",      project_id = "3a20b9aa-e6b3-49f3-ae22-428a517ae824" }
+    { name = "sandbox-app-portal-backend",      project_id = "3a20b9aa-e6b3-49f3-ae22-428a517ae824" },
+    { name = "sandbox-usecase-bp-frontend",     project_id = "e9641d65-cf47-4646-8e7a-531522e5032e" }
  ]
 }
