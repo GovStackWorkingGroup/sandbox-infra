@@ -28,8 +28,17 @@ Contains [CircleCI](https://circleci.com/) OIDC authentication configuration for
 3. As an output, you will receive roles for each separate CircleCI project. Use that role for the corresponding project for deployment.
 
 ### Environments
-
-- Development: dev
 - Production: prod
-- Quality assurance: qa
+- Development: dev
+- Playground: playground
 
+#### Production
+Stable showcase environment.
+
+It is under development and is not intended for actual production.
+
+#### Development
+Development environment
+
+#### Playground
+This is a sandbox. Isolated environment for third party providers.
