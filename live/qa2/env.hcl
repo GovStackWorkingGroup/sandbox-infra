@@ -1,18 +1,18 @@
 locals {
-
-  account_name   = "SandboxPlayground"
-  aws_account_id = "161826879607" 
+  account_name   = "SandboxQA"
+  aws_account_id = "809246460732"
   aws_profile    = "non-prod"
-  environment = "plg"
+  environment = "qa"
 
   aws_region = "eu-central-1"
-  product = "sb"
+  product = "sandbox2"
 
   # versions
-  eks_version = "1.24"
+  eks_version = "1.28"
 
   # EKS inputs
-  cluster_name = "GStack-${local.product}-eks-${local.environment}"
+  cluster_name = "${local.product}-${local.environment}"
+  vpc_cidr = "10.43.0.0/16"
 
   # CircleCI
   org_id = "a9a7f9cb-bb2c-4787-b2a7-b7963c3172f8"

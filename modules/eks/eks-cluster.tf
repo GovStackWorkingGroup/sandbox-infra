@@ -227,6 +227,7 @@ resource "null_resource" "kubectl" {
 resource "null_resource" "remove_gp2_aws_ebs_storage_class" {
   provisioner "local-exec" {
     command = "kubectl delete storageclass gp2"
+    on_failure = "continue"
   }
 
   depends_on = [module.eks]
