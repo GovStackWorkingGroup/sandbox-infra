@@ -4,7 +4,8 @@ Contains reusable Terraform configurations for setting up various components of 
 
 ## [EKS](../modules/eks)
 
-Defines a Sandbox Kubernetes cluster leveraging [EKS](https://aws.amazon.com/eks/).
+Defines a Sandbox Kubernetes cluster leveraging [EKS](https://aws.amazon.com/eks/) and [Karpenter](https://karpenter.sh)
+for auto-scaling the cluster resources.
 
 ## [ECR](../modules/ecr)
 
@@ -21,7 +22,7 @@ Contains additional configuration for the Kubernetes cluster. Currently empty.
 
 ## [CircleCI](../modules/circleci)
 
-Contains [CircleCI](https://circleci.com/) OIDC authentication configuration for deployment to a Sandbox Kubernetes cluster. 
+The GovStack Sandbox reference implementation utilizes CircleCI, and this module contains [CircleCI](https://circleci.com/) OIDC authentication configuration for deployment to a Sandbox Kubernetes cluster.
 
 1. In the `live/<env>/env.hcl`, edit the values of the variable `project` under the CICD section. Provide an identifying name for the project and the project ID from CircleCI (found in project settings).
 2. Navigate to `live/<env>/circleci` and run `terragrunt apply`.
