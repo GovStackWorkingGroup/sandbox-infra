@@ -21,5 +21,6 @@ inputs = {
  cicd_rolearns = dependency.circleci.outputs.cicd_rolearns
  instance_type = "t3a.medium"
  disk_size = 100
- vpc_cidr = local.env_vars.locals.vpc_cidr
+ vpc_cidr = "10.43.0.0/16"
+ cluster_name = "sandbox"
 }
