@@ -87,6 +87,21 @@ module "ebs_csi_irsa_role" {
   }
 }
 
+module "vpc_cni_irsa_role" {
+  source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+
+  role_name             = "${var.cluster_name}-vpc-cni-irsa"
+  attach_vpc_cni_policy = true
+  vpc_cni_enable_ipv4   = true
+
+  oidc_providers = {
+    ex = {
+      provider_arn               = module.eks.oidc_provider_arn
+      namespace_service_accounts = ["kube-system:aws-node"]
+    }
+  }
+}
+
 # Required for public ECR where Karpenter artifacts are hosted
 provider "aws" {
   region = "us-east-1"
@@ -110,6 +125,10 @@ module "eks_blueprints_kubernetes_addons" {
     aws-ebs-csi-driver = {
       most_recent              = true
       service_account_role_arn = module.ebs_csi_irsa_role.iam_role_arn
+    }
+    vpc-cni = {
+      most_recent = true
+      service_account_role_arn = module.vpc_cni_irsa_role.iam_role_arn
     }
   }
 
@@ -157,8 +176,7 @@ resource "kubectl_manifest" "karpenter_node_pool" {
               operator: In
               values: ["on-demand"]
       disruption:
-          consolidationPolicy: WhenEmpty
-          consolidateAfter: 30s
+          consolidationPolicy: WhenUnderutilized
           expireAfter: 2592000s # 30 Days = 60 * 60 * 24 * 30 Seconds;
       limits:
         cpu: "1000"
