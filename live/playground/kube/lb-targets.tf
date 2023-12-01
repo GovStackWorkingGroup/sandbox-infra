@@ -5,7 +5,7 @@
 resource "aws_lb_target_group" "usct_backend" {
     name = "usct-backend-tg"
     port = "8080"
-    vpc_id = module.vpc.vpc_id
+    vpc_id = var.vpc_id
     protocol = "HTTP"
     target_type = "ip"
 
@@ -25,7 +25,7 @@ resource "aws_lb_target_group" "usct_backend" {
 resource "aws_lb_target_group" "rpc_backend" {
     name = "rpc-backend-tg"
     port = "8080"
-    vpc_id = module.vpc.vpc_id
+    vpc_id = var.vpc_id
     protocol = "HTTP"
     target_type = "ip"
 
@@ -39,7 +39,7 @@ resource "aws_lb_target_group" "rpc_backend" {
 resource "aws_lb_target_group" "usct_frontend" {
     name = "usct-frontend-tg"
     port = 80
-    vpc_id = module.vpc.vpc_id
+    vpc_id = var.vpc_id
     protocol = "HTTP"
     target_type = "ip"
 }
@@ -47,9 +47,32 @@ resource "aws_lb_target_group" "usct_frontend" {
 resource "aws_lb_target_group" "bp_frontend" {
     name = "bp-frontend-tg"
     port = 80
-    vpc_id = module.vpc.vpc_id
+    vpc_id = var.vpc_id
     protocol = "HTTP"
     target_type = "ip"
+}
+
+locals {
+  backends = {}
+}
+
+resource "kubernetes_manifest" "backend" {
+  for_each = local.backends
+  manifest = {
+    apiVersion = "elbv2.k8s.aws/v1beta1"
+    kind = "TargetGroupBinding"
+    metadata = {
+      name = "${each.key}-tg"
+      namespace = "${each.key}"
+    }
+    spec = {
+      serviceRef = {
+          name = "${each.key}"
+          port = "${each.value.port}"
+        }
+      targetGroupARN = "${each.value.arn}"
+    }
+  }
 }
 
 locals {
@@ -61,7 +84,7 @@ resource "aws_lb_target_group" "im_xroad" {
 
     name = "im-xroad-${each.key}-tg"
     port = 4000
-    vpc_id = module.vpc.vpc_id
+    vpc_id = var.vpc_id
     protocol = "HTTPS"
     target_type = "ip"
     health_check {
@@ -71,11 +94,37 @@ resource "aws_lb_target_group" "im_xroad" {
     }
 }
 
+resource "kubernetes_namespace" "im_xroad" {
+  metadata {
+    name = "im-sandbox"
+  }
+}
+
+resource "kubernetes_manifest" "im_xroad" {
+  for_each = var.user_pool_arn != null ? aws_lb_target_group.im_xroad : {}
+
+  manifest = {
+    apiVersion = "elbv2.k8s.aws/v1beta1"
+    kind = "TargetGroupBinding"
+    metadata = {
+      name = "sandbox-xroad-${each.key}-tg"
+      namespace = kubernetes_namespace.im_xroad.metadata[0].name
+    }
+    spec = {
+      serviceRef = {
+          name = "sandbox-xroad-${each.key}"
+          port = 4000
+        }
+      targetGroupARN = "${each.value.arn}"
+    }
+  }
+}
+
 #
 # Listener rules (public)
 #
 resource "aws_lb_listener_rule" "usct_backend" {
-  listener_arn = aws_lb_listener.sandbox_alb.arn
+  listener_arn = var.sandbox_alb_listener_arn
   priority     = 100
 
   action {
@@ -97,7 +146,7 @@ resource "aws_lb_listener_rule" "usct_backend" {
 }
 
 resource "aws_lb_listener_rule" "usct_frontend" {
-  listener_arn = aws_lb_listener.sandbox_alb.arn
+  listener_arn = var.sandbox_alb_listener_arn
   priority     = 101
 
   action {
@@ -113,7 +162,7 @@ resource "aws_lb_listener_rule" "usct_frontend" {
 }
 
 resource "aws_lb_listener_rule" "bp_frontend" {
-  listener_arn = aws_lb_listener.sandbox_alb.arn
+  listener_arn = var.sandbox_alb_listener_arn
   priority     = 200
 
   action {
@@ -129,7 +178,7 @@ resource "aws_lb_listener_rule" "bp_frontend" {
 }
 
 resource "aws_lb_listener_rule" "rpc_backend" {
-  listener_arn = aws_lb_listener.sandbox_alb.arn
+  listener_arn = var.sandbox_alb_listener_arn
   priority     = 300
 
   action {
@@ -150,7 +199,7 @@ resource "aws_lb_listener_rule" "rpc_backend" {
 resource "aws_lb_listener_rule" "im_xroad" {
   for_each = var.user_pool_arn != null ? aws_lb_target_group.im_xroad : {}
 
-  listener_arn = aws_lb_listener.sandbox_alb.arn
+  listener_arn = var.sandbox_alb_listener_arn
   priority     = 10000 + index(local.xroad_servers, each.key)
   tags = {
     Name = "im-xroad.${each.key}-admin"
@@ -177,35 +226,4 @@ resource "aws_lb_listener_rule" "im_xroad" {
     }
 
   }
-}
-
-#
-# Outputs
-#
-
-output "usct_backend_tg" {
-    value = aws_lb_target_group.usct_backend.arn
-    description = "USCT backend target group"
-}
-
-output "usct_frontend_tg" {
-    value = aws_lb_target_group.usct_frontend.arn
-    description = "USCT frontend target group"
-}
-
-output "rpc_backend_tg" {
-    value = aws_lb_target_group.rpc_backend.arn
-    description = "rpc backend target group"
-}
-
-output "bp_frontend_tg" {
-    value = aws_lb_target_group.bp_frontend.arn
-    description = "BP frontend target group"
-}
-
-output "im_xroad_tg" {
-    value = {
-      for k, v in aws_lb_target_group.im_xroad : k => v.arn
-    }
-    description = "X-Road target group"
 }

@@ -1,3 +1,8 @@
+resource "aws_ecr_repository" "this" {
+  for_each = toset(var.repositories)
+  name = each.key
+}
+
 resource "aws_ecr_repository" "ecr_open_imis_backend" {
   name                 = "open-imis/${var.environment}-backend"
   image_tag_mutability = "MUTABLE"

@@ -10,5 +10,9 @@ include "commons" {
 #environment specific inputs 
 
 inputs = {
- #
+  repositories = [
+    "app/usct/backend",
+    "app/usct/frontend",
+    "bb/im/sandbox-x-road"
+  ]
 }

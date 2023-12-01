@@ -48,24 +48,3 @@ variable "alb_certificate_arn" {
   type        = string
   nullable    = true
 }
-
-variable "alb_domain" {
-  description = "Sandbox ALB domain"
-  type        = string
-  nullable    = true
-}
-
-variable "user_pool_arn" {
-  type        = string
-  nullable    = true
-}
-
-variable "user_pool_domain" {
-  type        = string
-  nullable    = true
-}
-
-variable "user_pool_client_id" {
-  type        = string
-  nullable    = true
-}
