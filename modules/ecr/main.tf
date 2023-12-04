@@ -3,6 +3,30 @@ resource "aws_ecr_repository" "this" {
   name = each.key
 }
 
+resource "aws_ecr_lifecycle_policy" "this" {
+  for_each = aws_ecr_repository.this
+  repository = each.key
+  policy = <<-JSON
+  {
+    "rules": [
+        {
+          "rulePriority": 1,
+          "description": "Expire untagged",
+          "selection": {
+            "tagStatus": "untagged",
+            "countType": "sinceImagePushed",
+            "countUnit": "days",
+            "countNumber": 14
+          },
+          "action": {
+              "type": "expire"
+          }
+        }
+    ]
+  }
+  JSON
+}
+
 resource "aws_ecr_repository" "ecr_open_imis_backend" {
   name                 = "open-imis/${var.environment}-backend"
   image_tag_mutability = "MUTABLE"

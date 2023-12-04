@@ -13,6 +13,7 @@ inputs = {
   repositories = [
     "app/usct/backend",
     "app/usct/frontend",
-    "bb/im/sandbox-x-road"
+    "bb/im/sandbox-x-road/central-server",
+    "bb/im/sandbox-x-road/security-server"
   ]
 }
