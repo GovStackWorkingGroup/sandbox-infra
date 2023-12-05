@@ -53,7 +53,25 @@ resource "aws_lb_target_group" "bp_frontend" {
 }
 
 locals {
-  backends = {}
+  backends = {
+    usct_frontend = {
+      namespace = "usct"
+      service = "frontend"
+      tg = aws_lb_target_group.usct_frontend
+    }
+    usct_backend = {
+      namespace = "usct"
+      service = "backend"
+      tg = aws_lb_target_group.usct_backend
+    }
+  }
+}
+
+resource "kubernetes_namespace" "backend" {
+  for_each = toset([for key,value in local.backends: value.namespace])
+  metadata {
+    name = each.value
+  }
 }
 
 resource "kubernetes_manifest" "backend" {
@@ -62,15 +80,15 @@ resource "kubernetes_manifest" "backend" {
     apiVersion = "elbv2.k8s.aws/v1beta1"
     kind = "TargetGroupBinding"
     metadata = {
-      name = "${each.key}-tg"
-      namespace = "${each.key}"
+      name = "${each.value.service}-tg"
+      namespace = "${each.value.namespace}"
     }
     spec = {
       serviceRef = {
-          name = "${each.key}"
-          port = "${each.value.port}"
+          name = "${each.value.service}"
+          port = "${each.value.tg.port}"
         }
-      targetGroupARN = "${each.value.arn}"
+      targetGroupARN = "${each.value.tg.arn}"
     }
   }
 }
