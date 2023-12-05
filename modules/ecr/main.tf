@@ -27,6 +27,8 @@ resource "aws_ecr_lifecycle_policy" "this" {
   JSON
 }
 
+# Following resources are deprecated and will be removed
+
 resource "aws_ecr_repository" "ecr_open_imis_backend" {
   name                 = "open-imis/${var.environment}-backend"
   image_tag_mutability = "MUTABLE"
@@ -218,87 +220,6 @@ resource "aws_ecr_repository" "ecr_mifos-phee-ns-web-self-service-app" {
 
 resource "aws_ecr_repository" "ecr_mifos-phee-ns-web-app" {
   name                 = "payment-hub/phee-ns/${var.environment}-web-app"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-}
-
-resource "aws_ecr_repository" "ecr_app-usct-backend" {
-  name                 = "app/usct/${var.environment}-backend"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-}
-
-resource "aws_ecr_repository" "ecr_app-usct-ui" {
-  name                 = "app/usct/${var.environment}-ui"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-}
-
-resource "aws_ecr_repository" "ecr_payment_bb_emulator" {
-  name                 = "bb/payments/emulator/${var.environment}-backend"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-}
-
-resource "aws_ecr_repository" "ecr_payment_bb_adapter" {
-  name                 = "bb/payments/adapter/${var.environment}-backend"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-}
-
-resource "aws_ecr_repository" "ecr_mock_sris" {
-  name                 = "mock-sris/${var.environment}-app"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-}
-
-resource "aws_ecr_repository" "ecr_digital_registries_bb_emulator" {
-  name                 = "bb/digital-registries/emulator/${var.environment}-backend"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-}
-
-resource "aws_ecr_repository" "ecr_portal_frontend" {
-  name                 = "app/portal/${var.environment}-frontend"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-}
-
-resource "aws_ecr_repository" "ecr_portal_backend" {
-  name                 = "app/portal/${var.environment}-backend"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-}
-
-resource "aws_ecr_repository" "ecr_app-bp-frontend" {
-  name                 = "app/bp/${var.environment}-frontend"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {

@@ -64,6 +64,16 @@ locals {
       service = "backend"
       tg = aws_lb_target_group.usct_backend
     }
+    bp_frontend = {
+      namespace = "bp"
+      service = "frontend"
+      tg = aws_lb_target_group.bp_frontend
+    }
+    rpc_backend = {
+      namespace = "rpc-backend"
+      service = "rpc-backend-service"
+      tg = aws_lb_target_group.rpc_backend
+    }
   }
 }
 
@@ -206,7 +216,7 @@ resource "aws_lb_listener_rule" "rpc_backend" {
 
   condition {
     host_header {
-      values = ["rpc.${var.alb_domain}"]
+      values = ["rpc-backend.${var.alb_domain}"]
     }
   }
 }

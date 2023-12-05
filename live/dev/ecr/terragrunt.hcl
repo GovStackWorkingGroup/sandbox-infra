@@ -19,7 +19,6 @@ inputs = {
     "bb/im/sandbox-x-road/security-server",
     "bb/payments/adapter",
     "bb/payments/emulator",
-    "bb/digital-registries/emulator",
-    "bb/digital-registries/adapter"
+    "bb/digital-registries/emulator"
   ]
 }

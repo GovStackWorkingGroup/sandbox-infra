@@ -36,6 +36,15 @@ resource "aws_security_group_rule" "allow_alb" {
     protocol = "tcp"
 }
 
+resource "aws_security_group_rule" "allow_alb_http" {
+    type = "ingress"
+    security_group_id = module.eks.cluster_primary_security_group_id
+    source_security_group_id = aws_security_group.sandbox_alb_sg.id
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+}
+
 resource "aws_lb" "sandbox_alb" {
   name               = "${var.cluster_name}-alb"
   internal           = false
