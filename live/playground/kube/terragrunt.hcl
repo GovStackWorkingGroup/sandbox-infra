@@ -15,6 +15,7 @@ include "commons" {
 
 inputs = {
   vpc_id = dependency.eks.outputs.vpc_id
+  vpc_nat_gw_ip = dependency.eks.outputs.vpc_nat_gw_ip
   cluster_name = dependency.eks.outputs.cluster_name
   sandbox_alb_arn = dependency.eks.outputs.sandbox_alb_arn
   sandbox_alb_listener_arn = dependency.eks.outputs.sandbox_alb_listener_arn
