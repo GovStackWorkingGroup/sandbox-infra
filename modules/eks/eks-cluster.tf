@@ -252,6 +252,15 @@ resource "null_resource" "remove_gp2_aws_ebs_storage_class" {
   depends_on = [module.eks]
 }
 
+resource "null_resource" "add_service_monitoring_crd" {
+  provisioner "local-exec" {
+    command = "kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml"
+    on_failure = continue
+  }
+
+  depends_on = [module.eks]
+}
+
 output "cluster_arn" {
   value = module.eks.cluster_arn
 }
