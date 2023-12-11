@@ -23,6 +23,11 @@ locals {
         "system:nodes",
       ]
     },
+    {
+      rolearn = "arn:aws:iam::${var.account_id}:role/EXT-mifosGroupIAMRole"
+      username = "EXT-mifosGroup"
+      groups = ["system:masters"]
+    }
   ])
   cicd_role_map = tolist([
     for role_arn in var.cicd_rolearns : {
@@ -238,9 +243,10 @@ resource "kubernetes_storage_class" "gp3" {
 }
 
 resource "null_resource" "kubectl" {
-    provisioner "local-exec" {
-        command = "aws eks --region ${var.region} update-kubeconfig --name ${module.eks.cluster_name}"
-    }
+  provisioner "local-exec" {
+      command = "aws eks --region ${var.region} update-kubeconfig --name ${module.eks.cluster_name}"
+  }
+  depends_on = [module.eks]
 }
 
 resource "null_resource" "remove_gp2_aws_ebs_storage_class" {
@@ -248,8 +254,15 @@ resource "null_resource" "remove_gp2_aws_ebs_storage_class" {
     command = "kubectl delete storageclass gp2"
     on_failure = continue
   }
+  depends_on = [null_resource.kubectl]
+}
 
-  depends_on = [module.eks]
+resource "null_resource" "add_service_monitoring_crd" {
+   provisioner "local-exec" {
+    command = "kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml"
+    on_failure = continue
+  }
+  depends_on = [null_resource.kubectl]
 }
 
 resource "null_resource" "add_service_monitoring_crd" {

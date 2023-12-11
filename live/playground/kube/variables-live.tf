@@ -10,6 +10,10 @@ variable "vpc_id" {
   type = string
 }
 
+variable "vpc_nat_gw_ip" {
+  type = set(string)
+}
+
 variable "alb_domain" {
   description = "Sandbox ALB domain"
   type        = string

@@ -103,51 +103,6 @@ resource "kubernetes_manifest" "backend" {
   }
 }
 
-locals {
-  xroad_servers = ["cs", "ss1", "ss2", "ss3"]
-}
-
-resource "aws_lb_target_group" "im_xroad" {
-    for_each = toset(local.xroad_servers)
-
-    name = "im-xroad-${each.key}-tg"
-    port = 4000
-    vpc_id = var.vpc_id
-    protocol = "HTTPS"
-    target_type = "ip"
-    health_check {
-      protocol = "HTTPS"
-      port = 4000
-      matcher = "200,302"
-    }
-}
-
-resource "kubernetes_namespace" "im_xroad" {
-  metadata {
-    name = "im-sandbox"
-  }
-}
-
-resource "kubernetes_manifest" "im_xroad" {
-  for_each = var.user_pool_arn != null ? aws_lb_target_group.im_xroad : {}
-
-  manifest = {
-    apiVersion = "elbv2.k8s.aws/v1beta1"
-    kind = "TargetGroupBinding"
-    metadata = {
-      name = "sandbox-xroad-${each.key}-tg"
-      namespace = kubernetes_namespace.im_xroad.metadata[0].name
-    }
-    spec = {
-      serviceRef = {
-          name = "sandbox-xroad-${each.key}"
-          port = 4000
-        }
-      targetGroupARN = "${each.value.arn}"
-    }
-  }
-}
-
 #
 # Listener rules (public)
 #
@@ -218,40 +173,5 @@ resource "aws_lb_listener_rule" "rpc_backend" {
     host_header {
       values = ["rpc-backend.${var.alb_domain}"]
     }
-  }
-}
-
-#
-# Listener rules (with authentication)
-#
-resource "aws_lb_listener_rule" "im_xroad" {
-  for_each = var.user_pool_arn != null ? aws_lb_target_group.im_xroad : {}
-
-  listener_arn = var.sandbox_alb_listener_arn
-  priority     = 10000 + index(local.xroad_servers, each.key)
-  tags = {
-    Name = "im-xroad.${each.key}-admin"
-  }
-
-  action {
-    type             = "authenticate-cognito"
-    authenticate_cognito {
-      user_pool_arn = "${var.user_pool_arn}"
-      user_pool_client_id = "${var.user_pool_client_id}"
-      user_pool_domain = "${var.user_pool_domain}"
-      session_timeout = "7200"
-    }
-  }
-
-  action {
-    type             = "forward"
-    target_group_arn = each.value.arn
-  }
-
-  condition {
-    host_header {
-      values = ["im-xroad-${each.key}.${var.alb_domain}"]
-    }
-
   }
 }
