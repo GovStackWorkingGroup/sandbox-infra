@@ -265,15 +265,6 @@ resource "null_resource" "add_service_monitoring_crd" {
   depends_on = [null_resource.kubectl]
 }
 
-resource "null_resource" "add_service_monitoring_crd" {
-  provisioner "local-exec" {
-    command = "kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml"
-    on_failure = continue
-  }
-
-  depends_on = [module.eks]
-}
-
 output "cluster_arn" {
   value = module.eks.cluster_arn
 }
