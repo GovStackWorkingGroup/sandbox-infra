@@ -19,5 +19,6 @@ inputs = {
   disk_size = 50
   vpc_cidr = "10.42.0.0/16"
   cluster_name = "sandbox"
-  alb_certificate_arn = "arn:aws:acm:eu-central-1:161826879607:certificate/430f767a-1c67-4494-8660-0576dbb32366"
+  #alb_certificate_arn = "arn:aws:acm:eu-central-1:161826879607:certificate/430f767a-1c67-4494-8660-0576dbb32366"
+  alb_certificate_arn = "arn:aws:acm:eu-central-1:161826879607:certificate/4c0a4324-198b-49dc-a70b-1fa78bf71c16"
 }
