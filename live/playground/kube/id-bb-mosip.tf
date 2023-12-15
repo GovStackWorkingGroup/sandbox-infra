@@ -77,7 +77,7 @@ resource "aws_lb_listener_rule" "id_bb_api_internal" {
     replace_triggered_by = [ aws_lb_target_group.id_bb_public ]
   }
   listener_arn = var.sandbox_alb_listener_arn
-  priority     = 20000
+  priority     = 2000
   tags = {
     Name = "id-bb-api-from-cluster"
  }
@@ -106,7 +106,7 @@ resource "aws_lb_listener_rule" "id_bb_internal" {
     replace_triggered_by = [ aws_lb_target_group.id_bb_internal ]
   }
   listener_arn = var.sandbox_alb_listener_arn
-  priority     = 20001
+  priority     = 2001
   tags = {
     Name = "id-bb-internal-from-cluster"
  }
@@ -135,7 +135,7 @@ resource "aws_lb_listener_rule" "id_bb_public" {
     replace_triggered_by = [ aws_lb_target_group.id_bb_public ]
   }
   listener_arn = var.sandbox_alb_listener_arn
-  priority     = 20900
+  priority     = 2900
   tags = {
     Name = "id-bb-mosip-public"
   }

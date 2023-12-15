@@ -22,13 +22,9 @@ locals {
         "system:bootstrappers",
         "system:nodes",
       ]
-    },
-    {
-      rolearn = "arn:aws:iam::${var.account_id}:role/EXT-mifosGroupIAMRole"
-      username = "EXT-mifosGroup"
-      groups = ["system:masters"]
     }
   ])
+
   cicd_role_map = tolist([
     for role_arn in var.cicd_rolearns : {
       rolearn  = role_arn
@@ -37,7 +33,17 @@ locals {
     }
   ])
 
-  aws_auth_map = concat(local.user_role_map, local.cicd_role_map)
+  ext_role_map = tolist([
+    for role in var.ext_roles : {
+      rolearn  = "arn:aws:iam::${var.account_id}:role/${role}"
+      username = replace(role, "IAMRole", "")
+      groups   = ["system:masters"]
+    }
+  ])
+ 
+  # concat with more than 2 parameters panics if a map is empty
+  tmp = concat(local.user_role_map, local.ext_role_map)
+  aws_auth_map = concat(local.tmp, local.cicd_role_map)
 }
 
 module "eks" {
