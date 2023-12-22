@@ -23,6 +23,6 @@ inputs = {
   #region = local.env_vars.aws_region
   environment = local.env
   product = local.product
-
+  repositories = []
 }
 

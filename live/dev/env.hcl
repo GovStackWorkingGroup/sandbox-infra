@@ -9,7 +9,7 @@ locals {
   product = "sandbox"
 
   # versions
-  eks_version = "1.24"
+  eks_version = "1.25"
 
   # EKS inputs
   cluster_name = "Govstack-${local.product}-cluster-${local.environment}"

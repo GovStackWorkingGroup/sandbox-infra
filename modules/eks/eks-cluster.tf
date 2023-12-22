@@ -22,8 +22,9 @@ locals {
         "system:bootstrappers",
         "system:nodes",
       ]
-    },
+    }
   ])
+
   cicd_role_map = tolist([
     for role_arn in var.cicd_rolearns : {
       rolearn  = role_arn
@@ -32,7 +33,17 @@ locals {
     }
   ])
 
-  aws_auth_map = concat(local.user_role_map, local.cicd_role_map)
+  ext_role_map = tolist([
+    for role in var.ext_roles : {
+      rolearn  = "arn:aws:iam::${var.account_id}:role/${role}"
+      username = replace(role, "IAMRole", "")
+      groups   = ["system:masters"]
+    }
+  ])
+ 
+  # concat with more than 2 parameters panics if a map is empty
+  tmp = concat(local.user_role_map, local.ext_role_map)
+  aws_auth_map = concat(local.tmp, local.cicd_role_map)
 }
 
 module "eks" {
@@ -61,18 +72,14 @@ module "eks" {
     use_custom_launch_template = false
     disk_size = var.disk_size
     disk_type = "gp3"
-    asg_max_size = 16
+    min_size     = 1
+    max_size     = 4
+    desired_size = 2
   }
 
   eks_managed_node_groups = {
-    one = {
-      name = "node-group-1"
-      subnet_ids     = [module.vpc.private_subnets[0]]
-    }
-
-    two = {
-      name = "node-group-2"
-      subnet_ids     = [module.vpc.private_subnets[1]]
+    default = {
+      subnet_ids    = module.vpc.private_subnets
     }
   }
 }
@@ -91,6 +98,21 @@ module "ebs_csi_irsa_role" {
   }
 }
 
+module "vpc_cni_irsa_role" {
+  source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+
+  role_name             = "${var.cluster_name}-vpc-cni-irsa"
+  attach_vpc_cni_policy = true
+  vpc_cni_enable_ipv4   = true
+
+  oidc_providers = {
+    ex = {
+      provider_arn               = module.eks.oidc_provider_arn
+      namespace_service_accounts = ["kube-system:aws-node"]
+    }
+  }
+}
+
 # Required for public ECR where Karpenter artifacts are hosted
 provider "aws" {
   region = "us-east-1"
@@ -103,6 +125,7 @@ data "aws_ecrpublic_authorization_token" "token" {
 
 module "eks_blueprints_kubernetes_addons" {
   source = "aws-ia/eks-blueprints-addons/aws"
+  version = "1.12.0"
 
   cluster_name      = module.eks.cluster_name
   cluster_endpoint  = module.eks.cluster_endpoint
@@ -114,21 +137,26 @@ module "eks_blueprints_kubernetes_addons" {
       most_recent              = true
       service_account_role_arn = module.ebs_csi_irsa_role.iam_role_arn
     }
+    vpc-cni = {
+      most_recent = true
+      service_account_role_arn = module.vpc_cni_irsa_role.iam_role_arn
+    }
   }
 
   enable_aws_load_balancer_controller = true
   enable_metrics_server               = true
   enable_karpenter                    = true
 
-  aws_load_balancer_controller = { 
+  aws_load_balancer_controller = {
     wait = true
   }
-  
+
   karpenter = {
     depends_on = [module.eks_blueprints_kubernetes_addons.aws_load_balancer_controller]
     repository = "oci://public.ecr.aws/karpenter"
     repository_username = data.aws_ecrpublic_authorization_token.token.user_name
     repository_password = data.aws_ecrpublic_authorization_token.token.password
+    chart_version = "v0.32.1"
   }
 
   tags = {
@@ -136,35 +164,33 @@ module "eks_blueprints_kubernetes_addons" {
   }
 }
 
-#https://karpenter.sh/preview/concepts/provisioners/
-resource "kubectl_manifest" "karpenter_provisioner" {
+#https://karpenter.sh/preview/concepts/nodepools/
+resource "kubectl_manifest" "karpenter_node_pool" {
   yaml_body = <<-YAML
-    apiVersion: karpenter.sh/v1alpha5
-    kind: Provisioner
+    apiVersion: karpenter.sh/v1beta1
+    kind: NodePool
     metadata:
       name: default
     spec:
-      consolidation: 
-        enabled: true
-      requirements:
-        - key: "karpenter.k8s.aws/instance-family"
-          operator: In
-          values: ["t3", "t3a"]
-        - key: "karpenter.k8s.aws/instance-size"
-          operator: In
-          values: ["medium", "large", "xlarge", "2xlarge"]
-        - key: karpenter.sh/capacity-type
-          operator: In
-          values: ["on-demand"]
+      template:
+        spec:
+          nodeClassRef:
+            name: default
+          requirements:
+            - key: "karpenter.k8s.aws/instance-family"
+              operator: In
+              values: ["t3", "t3a"]
+            - key: "karpenter.k8s.aws/instance-size"
+              operator: In
+              values: ["medium", "large", "xlarge", "2xlarge"]
+            - key: karpenter.sh/capacity-type
+              operator: In
+              values: ["on-demand"]
+      disruption:
+          consolidationPolicy: WhenUnderutilized
+          expireAfter: 2592000s # 30 Days = 60 * 60 * 24 * 30 Seconds;
       limits:
-        resources:
-          cpu: 1000
-      requests:
-        resources:
-          ephemeral-storage: "100Gi"
-      providerRef:
-        name: default
-      ttlSecondsUntilExpired: 2592000 # 30 Days = 60 * 60 * 24 * 30 Seconds;
+        cpu: "1000"
   YAML
 
   depends_on = [
@@ -172,24 +198,28 @@ resource "kubectl_manifest" "karpenter_provisioner" {
   ]
 }
 
-resource "kubectl_manifest" "karpenter_node_template" {
+resource "kubectl_manifest" "karpenter_node_class" {
   yaml_body = <<-YAML
-    apiVersion: karpenter.k8s.aws/v1alpha1
-    kind: AWSNodeTemplate
+    apiVersion: karpenter.k8s.aws/v1beta1
+    kind: EC2NodeClass
     metadata:
       name: default
     spec:
+      amiFamily: AL2
+      role: "${module.eks_blueprints_kubernetes_addons.karpenter.node_iam_role_name}"
       blockDeviceMappings:
         - deviceName: /dev/xvda
           ebs:
             volumeType: gp3
             volumeSize: 100Gi
             deleteOnTermination: true
-      subnetSelector:
-        kubernetes.io/cluster/${var.cluster_name}: shared
-      securityGroupSelector:
-        kubernetes.io/cluster/${var.cluster_name}: '*'
-      instanceProfile: ${module.eks_blueprints_kubernetes_addons.karpenter.node_instance_profile_name}
+      subnetSelectorTerms:
+        - tags:
+            kubernetes.io/cluster/${var.cluster_name}: shared
+            Name: "${var.cluster_name}_private"
+      securityGroupSelectorTerms:
+        - tags:
+            kubernetes.io/cluster/${var.cluster_name}: '*'
       tags:
         karpenter.sh/discovery: ${var.cluster_name}
   YAML
@@ -219,18 +249,26 @@ resource "kubernetes_storage_class" "gp3" {
 }
 
 resource "null_resource" "kubectl" {
-    provisioner "local-exec" {
-        command = "aws eks --region ${var.region} update-kubeconfig --name ${module.eks.cluster_name}"
-    }
+  provisioner "local-exec" {
+      command = "aws eks --region ${var.region} update-kubeconfig --name ${module.eks.cluster_name}"
+  }
+  depends_on = [module.eks]
 }
 
 resource "null_resource" "remove_gp2_aws_ebs_storage_class" {
   provisioner "local-exec" {
     command = "kubectl delete storageclass gp2"
-    on_failure = "continue"
+    on_failure = continue
   }
+  depends_on = [null_resource.kubectl]
+}
 
-  depends_on = [module.eks]
+resource "null_resource" "add_service_monitoring_crd" {
+   provisioner "local-exec" {
+    command = "kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml"
+    on_failure = continue
+  }
+  depends_on = [null_resource.kubectl]
 }
 
 output "cluster_arn" {

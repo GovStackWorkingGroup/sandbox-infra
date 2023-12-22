@@ -42,3 +42,14 @@ variable "disk_size" {
   description = "Disk Size"
   type        = number
 }
+
+variable "alb_certificate_arn" {
+  description = "Sandbox ALB TLS certificate"
+  type        = string
+  nullable    = true
+}
+
+variable "ext_roles" {
+  type = list(string)
+  default = []
+}

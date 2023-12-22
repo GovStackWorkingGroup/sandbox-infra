@@ -3,12 +3,12 @@ include "root" {
 }
 
 include "commons" {
-    path = "${dirname(find_in_parent_folders())}/common/kube.hcl"
+    path = "${dirname(find_in_parent_folders())}/common/bb-payment.hcl"
     expose = true
 }
 
 #environment specific inputs 
 
 inputs = {
- #
+  cluster_name = "sandbox"
 }
