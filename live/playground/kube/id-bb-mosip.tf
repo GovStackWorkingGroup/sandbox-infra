@@ -129,6 +129,71 @@ resource "aws_lb_listener_rule" "id_bb_internal" {
   }
 }
 
+# protected access
+resource "aws_lb_listener_rule" "id_bb_iam" {
+  lifecycle {
+    replace_triggered_by = [aws_lb_target_group.id_bb_internal]
+  }
+  listener_arn = var.sandbox_alb_listener_arn
+  priority     = 2100
+  tags = {
+    Name = "id-bb iam"
+  }
+
+  action {
+    type             = "authenticate-cognito"
+    authenticate_cognito {
+      user_pool_arn = "${var.user_pool_arn}"
+      user_pool_client_id = "${var.user_pool_client_id}"
+      user_pool_domain = "${var.user_pool_domain}"
+      session_timeout = "7200"
+    }
+  }
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.id_bb_internal.arn
+  }
+
+  condition {
+    host_header {
+      values = ["iam.id-bb.${var.alb_domain}"]
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "id_bb_admin" {
+  lifecycle {
+    replace_triggered_by = [aws_lb_target_group.id_bb_internal]
+  }
+  listener_arn = var.sandbox_alb_listener_arn
+  priority     = 2110
+  tags = {
+    Name = "id-bb iam"
+  }
+
+  action {
+    type             = "authenticate-cognito"
+    authenticate_cognito {
+      user_pool_arn = "${var.user_pool_arn}"
+      user_pool_client_id = "${var.user_pool_client_id}"
+      user_pool_domain = "${var.user_pool_domain}"
+      session_timeout = "7200"
+    }
+  }
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.id_bb_internal.arn
+  }
+
+  condition {
+    host_header {
+      values = ["admin.id-bb.${var.alb_domain}"]
+    }
+  }
+}
+
 # Public (external) access
 resource "aws_lb_listener_rule" "id_bb_public" {
   lifecycle {
