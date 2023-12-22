@@ -8,10 +8,11 @@ locals {
   product = "sandbox"
 
   # versions
-  eks_version = "1.27"
+  eks_version = "1.28"
 
   # EKS inputs
-  cluster_name = "Govstack-${local.product}-cluster-${local.environment}"
+  cluster_name = "${local.product}-${local.environment}"
+  vpc_cidr = "10.42.0.0/16"
 
   # CircleCI
   org_id = "a9a7f9cb-bb2c-4787-b2a7-b7963c3172f8"

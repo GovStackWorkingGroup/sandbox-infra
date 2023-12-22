@@ -1,5 +1,3 @@
-
-
 #---------------------------------------------------------------
 # Supporting Resources
 #---------------------------------------------------------------
@@ -21,8 +19,9 @@ module "vpc" {
 
   public_subnet_tags = {
     Name                                        = "${var.cluster_name}_public"
-    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
-    "kubernetes.io/role/elb"                    = 1
+    # Enable if creating public load balancers is allowed
+    # "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+    # "kubernetes.io/role/elb"                    = 1
   }
 
   private_subnet_tags = {

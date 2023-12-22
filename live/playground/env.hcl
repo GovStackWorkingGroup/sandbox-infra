@@ -9,11 +9,10 @@ locals {
   product = "sb"
 
   # versions
-  eks_version = "1.24"
+  eks_version = "1.25"
 
   # EKS inputs
   cluster_name = "GStack-${local.product}-eks-${local.environment}"
-  #   cluster_name = "Govstack-${local.product}-cluster-${local.environment}"
 
   # CircleCI
   org_id = "a9a7f9cb-bb2c-4787-b2a7-b7963c3172f8"

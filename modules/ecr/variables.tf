@@ -5,3 +5,7 @@ variable "environment" {
 variable "product" {
   type = string
 }
+
+variable "repositories" {
+  type = list(string)
+}
