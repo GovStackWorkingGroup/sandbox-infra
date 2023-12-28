@@ -6,11 +6,11 @@ resource "aws_security_group" "sandbox_alb_sg" {
   vpc_id      = module.vpc.vpc_id
 
   ingress {
-    description      = "TLS from all"
+    description      = "TLS ingress"
     from_port        = 443
     to_port          = 443
     protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
+    cidr_blocks      = concat(var.alb_cidr_blocks, formatlist("%s/32", module.vpc.nat_public_ips), [var.vpc_cidr])
     #ipv6_cidr_blocks = ["::/0"]
   }
 
