@@ -53,3 +53,8 @@ variable "ext_roles" {
   type = list(string)
   default = []
 }
+
+variable "alb_cidr_blocks" {
+  type = list(string)
+  default = [ "0.0.0.0/0" ]
+}

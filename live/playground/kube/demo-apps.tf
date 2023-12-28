@@ -117,7 +117,11 @@ resource "aws_lb_listener_rule" "usct_backend" {
 
   condition {
     path_pattern {
-      values = ["/api/*"]
+      values = [
+        "/api/*",
+        "/v3/*",
+        "/swagger-ui/*"
+      ]
     }
   }
 
