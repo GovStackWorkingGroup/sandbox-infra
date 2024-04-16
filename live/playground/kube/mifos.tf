@@ -1,4 +1,4 @@
-# Exposed services for ID-BB (Mifos)
+# Exposed services for Mifos
 resource "aws_lb_target_group" "mifos_bb_ui" {
   name        = "mifos-bb-ui-tg"
   port        = 80
