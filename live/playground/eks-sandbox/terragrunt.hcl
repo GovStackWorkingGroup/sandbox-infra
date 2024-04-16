@@ -17,7 +17,8 @@ inputs = {
   cicd_rolearns = []
   ext_roles = [
     "EXT-mifosGroupIAMRole", 
-    "EXT-igrantGroupIAMRole"
+    "EXT-igrantGroupIAMRole",
+    "EXT-mosipGroupIAMRole"
   ]
   instance_type = "t3a.medium"
   disk_size = 50
