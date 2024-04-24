@@ -135,12 +135,10 @@ module "eks_blueprints_kubernetes_addons" {
   eks_addons = {
     aws-ebs-csi-driver = {
       most_recent              = true
-      addon_version            = "v1.26.0-eksbuild.1"
       service_account_role_arn = module.ebs_csi_irsa_role.iam_role_arn
     }
     vpc-cni = {
       most_recent              = true
-      addon_version            = "v1.15.5-eksbuild.1"
       service_account_role_arn = module.vpc_cni_irsa_role.iam_role_arn
     }
   }

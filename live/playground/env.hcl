@@ -9,7 +9,7 @@ locals {
   product = "sb"
 
   # versions
-  eks_version = "1.25"
+  eks_version = "1.29"
 
   # EKS inputs
   cluster_name = "GStack-${local.product}-eks-${local.environment}"
