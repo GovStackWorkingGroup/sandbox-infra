@@ -73,8 +73,21 @@ resource "aws_lb_listener_rule" "baserow_backend" {
 }
 
 resource "aws_lb_listener_rule" "baserow_bb_ui" {
+  lifecycle {
+    replace_triggered_by = [aws_lb_target_group.baserow_bb_ui]
+  }
   listener_arn = var.sandbox_alb_listener_arn
-  priority     = 3405
+  priority     = 3407
+
+  action {
+    type             = "authenticate-cognito"
+    authenticate_cognito {
+      user_pool_arn = "${var.user_pool_arn}"
+      user_pool_client_id = "${var.user_pool_client_id}"
+      user_pool_domain = "${var.user_pool_domain}"
+      session_timeout = "7200"
+    }
+  }
 
   action {
     type             = "forward"
