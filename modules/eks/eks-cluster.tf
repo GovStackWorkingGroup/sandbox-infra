@@ -156,7 +156,7 @@ module "eks_blueprints_kubernetes_addons" {
     repository = "oci://public.ecr.aws/karpenter"
     repository_username = data.aws_ecrpublic_authorization_token.token.user_name
     repository_password = data.aws_ecrpublic_authorization_token.token.password
-    chart_version = "v0.32.1"
+    chart_version = "v0.32.10"
   }
 
   tags = {
