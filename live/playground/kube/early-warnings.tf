@@ -1,15 +1,24 @@
-resource "aws_lb_target_group" "early_warnings_backend" {
-    name = "early-warnings-backend-tg"
-    port = 8080
-    vpc_id = var.vpc_id
-    protocol = "HTTP"
-    target_type = "ip"
-}
 resource "aws_lb_target_group" "early_warnings_fronted" {
   name        = "early-warnings-frontend-tg"
   port        = 80
   vpc_id      = var.vpc_id
   protocol    = "HTTP"
+  target_type = "ip"
+}
+
+resource "aws_lb_target_group" "early_warnings_user_svc" {
+    name = "early-warnings-user-svc-tg"
+    port = 8080
+    vpc_id = var.vpc_id
+    protocol = "HTTP"
+    target_type = "ip"
+}
+
+resource "aws_lb_target_group" "early_warnings_threat_svc" {
+  name = "early-warnings-threat-svc-tg"
+  port = 8080
+  vpc_id = var.vpc_id
+  protocol = "HTTP"
   target_type = "ip"
 }
 
@@ -20,10 +29,15 @@ locals {
       service = "frontend-service"
       tg = aws_lb_target_group.early_warnings_fronted
     }
-    usct_backend = {
+    early_warnings_user_svc = {
       namespace = "early-warnings"
       service = "user-service"
-      tg = aws_lb_target_group.early_warnings_backend
+      tg = aws_lb_target_group.early_warnings_user_svc
+    }
+    early_warnings_threat_svc = {
+      namespace = "early-warnings"
+      service = "threat-service"
+      tg = aws_lb_target_group.early_warnings_threat_svc
     }
   }
 }
@@ -54,12 +68,16 @@ resource "aws_lb_listener_rule" "early_warnings_backend" {
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.early_warnings_backend.arn
+    target_group_arn = aws_lb_target_group.early_warnings_user_svc.arn
   }
     condition {
       path_pattern {
         values = [
-          "/api/*"
+          "/api/v1/auth/*",
+          "/api/v1/end-user/*",
+          "/api/v1/users/*",
+          "/api/v1/utility/*",
+
         ]
       }
     }
@@ -70,9 +88,32 @@ resource "aws_lb_listener_rule" "early_warnings_backend" {
     }
   }
 }
-resource "aws_lb_listener_rule" "early_warnings_fronted" {
+resource "aws_lb_listener_rule" "early_warnings_threat_svc" {
   listener_arn = var.sandbox_alb_listener_arn
   priority     = 3416
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.early_warnings_threat_svc.arn
+  }
+
+  condition {
+    host_header {
+      values = ["early-warnings.${var.alb_domain}"]
+    }
+  }
+
+  condition {
+    path_pattern {
+      values = ["/api/*"]
+    }
+  }
+}
+
+
+resource "aws_lb_listener_rule" "early_warnings_fronted" {
+  listener_arn = var.sandbox_alb_listener_arn
+  priority     = 3417
 
   action {
     type             = "forward"
