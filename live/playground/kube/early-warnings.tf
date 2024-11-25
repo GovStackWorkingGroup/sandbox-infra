@@ -22,7 +22,7 @@ locals {
     }
     usct_backend = {
       namespace = "early-warnings"
-      service = "threat-service"
+      service = "user-service"
       tg = aws_lb_target_group.early_warnings_backend
     }
   }
