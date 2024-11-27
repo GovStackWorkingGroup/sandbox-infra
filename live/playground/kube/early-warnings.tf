@@ -22,6 +22,14 @@ resource "aws_lb_target_group" "early_warnings_threat_svc" {
   target_type = "ip"
 }
 
+resource "aws_lb_target_group" "early_warnings_log_svc" {
+  name = "early-warnings-log-svc-tg"
+  port = 8080
+  vpc_id = var.vpc_id
+  protocol = "HTTP"
+  target_type = "ip"
+}
+
 locals {
   early_warnings = {
     early_warnings_fronted = {
@@ -38,6 +46,11 @@ locals {
       namespace = "early-warnings"
       service = "threat-service"
       tg = aws_lb_target_group.early_warnings_threat_svc
+    }
+    early_warnings_log_svc = {
+      namespace = "early-warnings"
+      service = "log-service"
+      tg = aws_lb_target_group.early_warnings_log_svc
     }
   }
 }
@@ -88,9 +101,33 @@ resource "aws_lb_listener_rule" "early_warnings_backend" {
     }
   }
 }
-resource "aws_lb_listener_rule" "early_warnings_threat_svc" {
+resource "aws_lb_listener_rule" "early_warnings_log" {
+
   listener_arn = var.sandbox_alb_listener_arn
   priority     = 3416
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.early_warnings_log_svc.arn
+  }
+  condition {
+    path_pattern {
+      values = [
+        "/api/v1/log/*"
+
+      ]
+    }
+  }
+
+  condition {
+    host_header {
+      values = ["early-warnings.${var.alb_domain}"]
+    }
+  }
+}
+resource "aws_lb_listener_rule" "early_warnings_threat_svc" {
+  listener_arn = var.sandbox_alb_listener_arn
+  priority     = 3417
 
   action {
     type             = "forward"
@@ -113,7 +150,7 @@ resource "aws_lb_listener_rule" "early_warnings_threat_svc" {
 
 resource "aws_lb_listener_rule" "early_warnings_fronted" {
   listener_arn = var.sandbox_alb_listener_arn
-  priority     = 3417
+  priority     = 3418
 
   action {
     type             = "forward"
